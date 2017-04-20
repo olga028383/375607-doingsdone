@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL);
 $show_complete_tasks = rand(0, 1);
 ?>
 <!DOCTYPE html>
@@ -115,18 +116,18 @@ $show_complete_tasks = rand(0, 1);
             <table class="tasks">
               <?php if($show_complete_tasks):?>
               <!--показывать эту строку, если переменная равна единице-->
-              <tr class="tasks__item task task--completed">
-                <td class="task__select">
-                  <label class="checkbox task__checkbox">
-                    <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                    <span class="checkbox__text">Записаться на интенсив "Базовый PHP"</span>
-                  </label>
-                </td>
-                <td class="task__date">10.04.2017</td>
+                <tr class="tasks__item task task--completed">
+                  <td class="task__select">
+                    <label class="checkbox task__checkbox">
+                      <input class="checkbox__input visually-hidden" type="checkbox" checked>
+                      <span class="checkbox__text">Записаться на интенсив "Базовый PHP"</span>
+                    </label>
+                  </td>
+                  <td class="task__date">10.04.2017</td>
 
-                <td class="task__controls">
-                </td>
-              </tr>
+                  <td class="task__controls">
+                  </td>
+                </tr>
               <?php endif ?>
               <tr class="tasks__item task">
                 <td class="task__select">
