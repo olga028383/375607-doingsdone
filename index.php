@@ -146,7 +146,7 @@ if($days_until_deadline <= 0){
               <?php endif ?>
 
               <!--добавьте здесь класс "task--important" если эта задача просрочена-->
-              <tr class="tasks__item task  <?php echo $taskWarning; ?>">
+              <tr class="tasks__item task <?php echo $taskWarning; ?> ">
                 <td class="task__select">
                   <label class="checkbox task__checkbox">
                     <input class="checkbox__input visually-hidden" type="checkbox">
