@@ -9,11 +9,11 @@ $current_ts = time(); // текущая метка времени
 $date_deadline = date("d.m.Y", $task_deadline_ts);
 
 // в эту переменную запишите кол-во дней до даты задачи
-$days_until_deadline = ($task_deadline_ts - $current_ts)/86400;
+$days_until_deadline = ($task_deadline_ts - $current_ts) / 86400;
 
 $taskWarning = "";
-if($days_until_deadline <= 0){
-  $taskWarning = "task--important";
+if ($days_until_deadline <= 0) {
+    $taskWarning = "task--important";
 }
 ?>
 <!DOCTYPE html>
