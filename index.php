@@ -84,7 +84,7 @@ $taskList = [
             <nav class="main-navigation">
               <ul class="main-navigation__list">
                 <?php
-                foreach ($projectList as $key => $val):
+                    foreach ($projectList as $key => $val):
                     $firstItem = '';
                 
                     if ($key == 0) {
@@ -142,7 +142,7 @@ $taskList = [
 
             <table class="tasks">
               <?php
-              foreach ($taskList as $key => $val):
+                  foreach ($taskList as $key => $val):
                   $taskCompleted = '';
               
                   if ($val['result'] == 'Да') {
