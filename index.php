@@ -39,7 +39,8 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
-function getNumberTasks($taskList, $nameCategory){
+function getNumberTasks($taskList, $nameCategory)
+{
     if (!$nameCategory) {
         return 0;
     }
@@ -48,12 +49,10 @@ function getNumberTasks($taskList, $nameCategory){
     }
     
     $countTask = 0;
-    $i = 0;
-    while (count($taskList) > $i) {
-        if ($taskList[$i]["category"] == $nameCategory) {
-            $countTask += 1;
+    foreach ($taskList as $key => $value) {
+        if ($value["category"] == $nameCategory) {
+            $countTask ++;
         }
-        $i++;
     }
     return $countTask;
 }
