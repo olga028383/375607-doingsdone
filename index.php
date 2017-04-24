@@ -39,6 +39,7 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,11 +86,11 @@ $taskList = [
               <ul class="main-navigation__list">
                 <?php
                     foreach ($projectList as $key => $val):
-                    $firstItem = '';
-                
-                    if ($key == 0) {
-                        $firstItem = "main-navigation__list-item--active";
-                    }
+                        $firstItem = '';
+
+                        if ($key == 0) {
+                            $firstItem = "main-navigation__list-item--active";
+                        }
                 ?>
                   <li class="main-navigation__list-item <?= $firstItem; ?>">
                     <a class="main-navigation__list-item-link" href="#"><?= $val; ?></a>
@@ -143,11 +144,11 @@ $taskList = [
             <table class="tasks">
               <?php
                   foreach ($taskList as $key => $val):
-                  $taskCompleted = '';
-              
-                  if ($val['result'] == 'Да') {
-                      $taskCompleted = 'task--completed';
-                  }
+                      $taskCompleted = '';
+
+                      if ($val['result'] == 'Да') {
+                          $taskCompleted = 'task--completed';
+                      }
               ?>
                 <tr class="tasks__item task <?= $taskCompleted; ?>">
                   <td class="task__select">
