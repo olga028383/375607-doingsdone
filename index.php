@@ -39,7 +39,24 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
-
+function getNumberTasks($taskList, $nameCategory){
+    if (!$nameCategory) {
+        return 0;
+    }
+    if ($nameCategory == "Все") {
+        return count($taskList);
+    }
+    
+    $countTask = 0;
+    $i = 0;
+    while (count($taskList) > $i) {
+        if ($taskList[$i]["category"] == $nameCategory) {
+            $countTask += 1;
+        }
+        $i++;
+    }
+    return $countTask;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -94,7 +111,7 @@ $taskList = [
                 ?>
                   <li class="main-navigation__list-item <?= $firstItem; ?>">
                     <a class="main-navigation__list-item-link" href="#"><?= $val; ?></a>
-                    <span class="main-navigation__list-item-count">24</span>
+                    <span class="main-navigation__list-item-count"><?= getNumberTasks($taskList, $val); ?></span>
                   </li>
                 <?php endforeach; ?>
               </ul>
