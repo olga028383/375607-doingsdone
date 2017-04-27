@@ -13,8 +13,8 @@
             }
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
-              <a class="main-navigation__list-item-link" href="#"><?= $val; ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($array[1], $val); ?></span>
+              <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($val); ?></a>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($array[1], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -74,10 +74,10 @@
             <td class="task__select">
               <label class="checkbox task__checkbox">
                 <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                <span class="checkbox__text"><?= $val['task']; ?></span>
+                <span class="checkbox__text"><?= htmlspecialchars($val['task']); ?></span>
               </label>
             </td>
-            <td class="task__date"><?= $val['date']; ?></td>
+            <td class="task__date"><?= htmlspecialchars($val['date']); ?></td>
             <td class="task__controls"></td>
           </tr>
       <?php endforeach; ?>
