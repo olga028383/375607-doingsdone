@@ -14,7 +14,7 @@
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
               <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($val); ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($array[1], htmlspecialchars($val)); ?></span>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData[1], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>

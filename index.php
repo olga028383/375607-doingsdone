@@ -74,7 +74,7 @@ function getNumberTasks($taskList, $nameCategory) {
     <div class="page-wrapper">
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', []); ?>
-
+ 
         <?= includeTemplate('main.php', [$projectList, $taskList]); ?>
 
         <?= includeTemplate('footer.php', []); ?>
