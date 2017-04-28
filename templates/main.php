@@ -13,8 +13,8 @@
             }
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
-              <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($val); ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['projects'], htmlspecialchars($val)); ?></span>
+              <a class="main-navigation__list-item-link" href="/375607-doingsdone/index.php?page=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['countTask'], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -33,27 +33,12 @@
     </form>
 
     <div class="tasks-controls">
-      <div class="radio-button-group">
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio" checked="">
-          <span class="radio-button__text">Все задачи</span>
-        </label>
-
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio">
-          <span class="radio-button__text">Повестка дня</span>
-        </label>
-
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio">
-          <span class="radio-button__text">Завтра</span>
-        </label>
-
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio">
-          <span class="radio-button__text">Просроченные</span>
-        </label>
-      </div>
+      <nav class="tasks-switch"> 
+        <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a> 
+        <a href="/" class="tasks-switch__item">Повестка дня</a> 
+        <a href="/" class="tasks-switch__item">Завтра</a> 
+        <a href="/" class="tasks-switch__item">Просроченные</a> 
+      </nav>
 
       <label class="checkbox">
         <input id="show-complete-tasks" class="checkbox__input visually-hidden" checked type="checkbox">
@@ -69,6 +54,7 @@
           if ($val['result'] == 'Да') {
               $taskCompleted = 'task--completed';
           }
+          //if ($templateData['id'] != '' && $templateData['projects'][$templateData['id']] == $val['category']) {
           ?>
           <tr class="tasks__item task <?= $taskCompleted; ?>">
             <td class="task__select">

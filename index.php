@@ -1,4 +1,5 @@
 <?php
+ob_start();
 error_reporting(E_ALL);
 require_once 'functions.php';
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
@@ -40,6 +41,26 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
+$pageTasksListNew = [];
+$pageTasks = '';
+if (isset($_GET['page'])) {
+    $pageTasks = (int) abs(($_GET['page']));
+    if ($pageTasks == 0) {
+        $pageTasksListNew = $taskList;
+    }
+    if ($pageTasks > count($taskList) - 1) {
+        header("HTTP/1.1 404 Not Found");
+        ob_get_clean();
+    } else {
+        for ($i = 0; $i < count($taskList); $i++) {
+            if ($taskList[$i]['category'] == $projectList[$pageTasks]) {
+                $pageTasksListNew[] = $taskList[$i];
+            }
+        }
+    }
+} else {
+    $pageTasksListNew = $taskList;
+}
 
 function getNumberTasks($taskList, $nameCategory) {
     if (!$nameCategory) {
@@ -74,9 +95,9 @@ function getNumberTasks($taskList, $nameCategory) {
     <div class="page-wrapper">
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', []); ?>
-        
+
         <!--Ожидаются данные в формате ассоциативного массива-->
-        <?= includeTemplate('main.php', ['projects' => $projectList, 'tasks' => $taskList]); ?>
+        <?= includeTemplate('main.php', ['id' => $pageTasks, 'projects' => $projectList, 'tasks' => $pageTasksListNew, 'countTask' => $taskList]); ?>
 
         <?= includeTemplate('footer.php', []); ?>
         <div class="modal" hidden>
