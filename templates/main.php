@@ -5,7 +5,7 @@
     <nav class="main-navigation">
       <ul class="main-navigation__list">
         <?php
-        foreach ($templateData[0] as $key => $val):
+        foreach ($templateData['projects'] as $key => $val):
             $firstItem = '';
 
             if ($key == 0) {
@@ -14,7 +14,7 @@
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
               <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($val); ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData[1], htmlspecialchars($val)); ?></span>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['projects'], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -63,7 +63,7 @@
 
     <table class="tasks">
       <?php
-      foreach ($templateData[1] as $key => $val):
+      foreach ($templateData['tasks'] as $key => $val):
           $taskCompleted = '';
 
           if ($val['result'] == 'Да') {

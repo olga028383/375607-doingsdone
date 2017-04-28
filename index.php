@@ -74,8 +74,9 @@ function getNumberTasks($taskList, $nameCategory) {
     <div class="page-wrapper">
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', []); ?>
- 
-        <?= includeTemplate('main.php', [$projectList, $taskList]); ?>
+        
+        <!--Ожидаются данные в формате ассоциативного массива-->
+        <?= includeTemplate('main.php', ['projects' => $projectList, 'tasks' => $taskList]); ?>
 
         <?= includeTemplate('footer.php', []); ?>
         <div class="modal" hidden>
