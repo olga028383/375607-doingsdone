@@ -5,7 +5,7 @@
     <nav class="main-navigation">
       <ul class="main-navigation__list">
         <?php
-        foreach ($array[0] as $key => $val):
+        foreach ($templateData[0] as $key => $val):
             $firstItem = '';
 
             if ($key == 0) {
@@ -63,7 +63,7 @@
 
     <table class="tasks">
       <?php
-      foreach ($array[1] as $key => $val):
+      foreach ($templateData[1] as $key => $val):
           $taskCompleted = '';
 
           if ($val['result'] == 'Да') {
