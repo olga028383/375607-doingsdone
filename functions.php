@@ -1,5 +1,25 @@
 <?php
 /**
+ * Функция устанавливает стиль для незаполненных поле формы.
+ * @param boolean $fieldError  - ошибка пришла
+ * @return string
+ */
+function setClassError($error){
+    return (!empty($error))? 'form__input--error': '';
+} 
+/**
+ * Функция очищает входящие данные.
+ * @param string $data принимает строку
+ * @return string
+ */
+function checkInput($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
+
+/**
  * Функция печатает шаблон.
  * @param string $template имя шаблона
  * @param array $templateData - данные для шаблона

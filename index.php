@@ -56,6 +56,49 @@ if (isset($_GET['project'])) {
 } else {
     $tasksToDisplay = $taskList;
 }
+
+$bodyClassOverlay = '';
+$modalShow = false;
+if (isset($_GET['add'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShow = true;
+}
+if (isset($_POST['name']) || isset($_POST['project']) || isset($_POST['date'])) {
+    $nameError = false;
+    $newProjectError = false;
+    $dateError = false;
+    $name = '';
+    $newProject = '';
+    $date = '';
+
+    if (empty($_POST['name'])) {
+        $nameError = true;
+        $bodyClassOverlay = 'overlay';
+        $modalShow = true;
+    }else{
+        $name = checkInput($_POST['name']);
+    }
+    if (empty($_POST['project'])) {
+        $newProjectError = true;
+        $bodyClassOverlay = 'overlay';
+        $modalShow = true;
+    }else{
+         $newProject = checkInput($_POST['project']);
+    }
+    if (empty($_POST['date'])) {
+        $dateError = true;
+        $bodyClassOverlay = 'overlay';
+        $modalShow = true;
+    }else{
+        $date = checkInput($_POST['date']);
+    }
+    array_unshift($tasksToDisplay, ["task" => $name, "date" => $date, "project" => $newProject, "result" => "Нет"]);
+
+    /* if (is_uploaded_file($_FILES['preview']['name'])) {
+      $file = $_FILES['preview'];
+      move_uploaded_file($file['tmp_name'], '/');
+      } */
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +110,7 @@ if (isset($_GET['project'])) {
     <link rel="stylesheet" href="css/style.css">
   </head>
 
-  <body><!--class="overlay"-->
+  <body class=<?= $bodyClassOverlay; ?>>
     <h1 class="visually-hidden">Дела в порядке</h1>
 
     <div class="page-wrapper">
@@ -79,7 +122,11 @@ if (isset($_GET['project'])) {
     </div>
     <?= includeTemplate('footer.php', []); ?>
 
-    <?= includeTemplate('add-project.php', []); ?>
+    <?php
+    if ($modalShow) {
+        print(includeTemplate('add-project.php', ['nameError' => $nameError, 'newProjectError' => $newProjectError, 'dateError' => $dateError, 'allTasks' => $projectList]));
+    }
+    ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>
 </html>

@@ -1,27 +1,52 @@
-<div class="modal" hidden>
+<div class="modal">
   <button class="modal__close" type="button" name="button">Закрыть</button>
 
   <h2 class="modal__heading">Добавление задачи</h2>
 
-  <form class="form" class="" action="index.html" method="post">
+  <form class="form" class="" action="/index.php" method="post">
     <div class="form__row">
       <label class="form__label" for="name">Название <sup>*</sup></label>
-
-      <input class="form__input" type="text" name="name" id="name" value="" placeholder="Введите название">
+      <?php
+      $errorStyleName = setClassError($templateData['nameError']);
+      if(!empty($errorStyleName )){
+          print("<span>Заполните поле с названием</span>");
+      }
+      ?>
+      
+      <input class="form__input <?=$errorStyleName;?>" type="text" name="name" id="name" value="" placeholder="Введите название">
     </div>
 
     <div class="form__row">
       <label class="form__label" for="project">Проект <sup>*</sup></label>
-
-      <select class="form__input form__input--select" name="project" id="project">
-        <option value="">Входящие</option>
+      <?php
+      $errorStyleProject = setClassError($templateData['newProjectError']);
+      if(!empty($errorStyleProject)){
+          print("<span>Выберите проект</span>");
+      }
+      ?>
+      
+      <select class="form__input form__input--select  <?=$errorStyleProject;?>" name="project" id="project">
+        <option selected disabled>Выберите проект</option>
+        <?php
+        foreach ($templateData['allTasks'] as $key => $val):
+            if ($key == 0) {
+                continue;
+            }
+        ?>
+            <option value="<?=$key;?>"><?= $val; ?></option>
+        <?php endforeach; ?>
       </select>
     </div>
 
     <div class="form__row">
       <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
-
-      <input class="form__input form__input--date" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+      <?php
+      $errorStyleDate = setClassError($templateData['dateError']);
+      if(!empty($errorStyleDate)){
+          print("<span>Заполните поле с датой</span>");
+      }
+      ?>
+      <input class="form__input form__input--date <?=$errorStyleDate;?>" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
     <div class="form__row">
