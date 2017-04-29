@@ -1,7 +1,7 @@
 <!--Шаблон принимает массив параметров, 
-array $templateData['project'] содержит список проектов, 
-array $templateData['countTask'] массив состоящий из полного списка задач,
-array $templateData['tasks'] новый массив состоящий из задач запрошенных пользователем
+array $templateData['projects'] содержит список проектов, 
+array $templateData['allTasks'] массив состоящий из полного списка задач,
+array $templateData['tasksToDisplay'] новый массив состоящий из задач, запрошенных пользователем
 -->
 <div class="content">
   <section class="content__side">
