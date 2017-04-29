@@ -1,8 +1,11 @@
-<!--Шаблон принимает массив параметров, 
-array $templateData['projects'] содержит список проектов, 
-array $templateData['allTasks'] массив состоящий из полного списка задач,
-array $templateData['tasksToDisplay'] новый массив состоящий из задач, запрошенных пользователем
--->
+<?php
+/**
+ * Шаблон принимает массив параметров,
+ * array $templateData['projects'] содержит список проектов,
+ * array $templateData['allTasks'] массив состоящий из полного списка задач,
+ * array $templateData['tasksToDisplay'] новый массив состоящий из задач, запрошенных пользователем*
+ */
+?>
 <div class="content">
   <section class="content__side">
     <h2 class="content__side-heading">Проекты</h2>
@@ -38,11 +41,11 @@ array $templateData['tasksToDisplay'] новый массив состоящий
     </form>
 
     <div class="tasks-controls">
-      <nav class="tasks-switch"> 
-        <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a> 
-        <a href="/" class="tasks-switch__item">Повестка дня</a> 
-        <a href="/" class="tasks-switch__item">Завтра</a> 
-        <a href="/" class="tasks-switch__item">Просроченные</a> 
+      <nav class="tasks-switch">
+        <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
+        <a href="/" class="tasks-switch__item">Повестка дня</a>
+        <a href="/" class="tasks-switch__item">Завтра</a>
+        <a href="/" class="tasks-switch__item">Просроченные</a>
       </nav>
 
       <label class="checkbox">
@@ -74,5 +77,4 @@ array $templateData['tasksToDisplay'] новый массив состоящий
     </table>
   </main>
 </div>
-</div>
-</div>
+

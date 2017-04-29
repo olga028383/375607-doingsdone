@@ -49,8 +49,7 @@ if (isset($_GET['project'])) {
         header("HTTP/1.0 404 Not Found");
         exit();
     } else {
-        $tasksToDisplay = array_filter($taskList, function($task) use ($projectList, $project) 
-        {
+        $tasksToDisplay = array_filter($taskList, function($task) use ($projectList, $project) {
             return $project == 0 || $projectList[$project] == $task['project'];
         });
     }
@@ -76,10 +75,11 @@ if (isset($_GET['project'])) {
         <?= includeTemplate('header.php', []); ?>
 
         <?= includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]); ?>
+      </div>
+    </div>
+    <?= includeTemplate('footer.php', []); ?>
 
-        <?= includeTemplate('footer.php', []); ?>
-
-        <?= includeTemplate('add-project.php', []); ?>
-        <script type="text/javascript" src="js/script.js"></script>
-        </body>
-        </html>
+    <?= includeTemplate('add-project.php', []); ?>
+    <script type="text/javascript" src="js/script.js"></script>
+  </body>
+</html>

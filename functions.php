@@ -1,9 +1,8 @@
 <?php
-
 /**
  * Функция печатает шаблон.
  * @param string $template имя шаблона
- * @param array $templateData - данные для шаблона, ожидаются ключи 'projects' и 'tasks'
+ * @param array $templateData - данные для шаблона
  * @return string
  */
 function includeTemplate($template, $templateData) {
