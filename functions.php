@@ -1,4 +1,10 @@
 <?php
+/**
+    * Функция печатает шаблон.
+    * @param string $template имя шаблона
+    * @param array $templateData - данные для шаблона, ожидаются ключи 'projects' и 'tasks'
+    * @return string
+  */
 function includeTemplate($template, $templateData)
 {
     if(!isset($template)){
@@ -12,4 +18,26 @@ function includeTemplate($template, $templateData)
     $html = ob_get_clean();
     
     return $html;
+}
+/**
+    * Функция считает количество задач.
+    * @param array $taskList массив задач
+    * @param string $nameCategory - имя категории
+    * @return number 
+  */
+function getNumberTasks($taskList, $nameCategory) {
+    if (!$nameCategory) {
+        return 0;
+    }
+    if ($nameCategory == "Все") {
+        return count($taskList);
+    }
+
+    $countTask = 0;
+    foreach ($taskList as $key => $value) {
+        if ($value["project"] == $nameCategory) {
+            $countTask ++;
+        }
+    }
+    return $countTask;
 }

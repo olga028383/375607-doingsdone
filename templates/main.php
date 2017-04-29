@@ -1,3 +1,8 @@
+<!--Шаблон принимает массив параметров, 
+array $templateData['project'] содержит список проектов, 
+array $templateData['countTask'] массив состоящий из полного списка задач,
+array $templateData['tasks'] новый массив состоящий из задач запрошенных пользователем
+-->
 <div class="content">
   <section class="content__side">
     <h2 class="content__side-heading">Проекты</h2>
@@ -5,7 +10,7 @@
     <nav class="main-navigation">
       <ul class="main-navigation__list">
         <?php
-        foreach ($templateData['projects'] as $key => $val):
+        foreach ($templateData['project'] as $key => $val):
             $firstItem = '';
 
             if ($key == 0) {
@@ -13,7 +18,7 @@
             }
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
-              <a class="main-navigation__list-item-link" href="/375607-doingsdone/index.php?page=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
+              <a class="main-navigation__list-item-link" href="/375607-doingsdone/index.php?project=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
               <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['countTask'], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
@@ -54,7 +59,6 @@
           if ($val['result'] == 'Да') {
               $taskCompleted = 'task--completed';
           }
-          //if ($templateData['id'] != '' && $templateData['projects'][$templateData['id']] == $val['category']) {
           ?>
           <tr class="tasks__item task <?= $taskCompleted; ?>">
             <td class="task__select">
