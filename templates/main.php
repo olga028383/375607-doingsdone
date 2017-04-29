@@ -1,3 +1,11 @@
+<?php
+/**
+ * Шаблон принимает массив параметров,
+ * array $templateData['projects'] содержит список проектов,
+ * array $templateData['allTasks'] массив состоящий из полного списка задач,
+ * array $templateData['tasksToDisplay'] новый массив состоящий из задач, запрошенных пользователем*
+ */
+?>
 <div class="content">
   <section class="content__side">
     <h2 class="content__side-heading">Проекты</h2>
@@ -13,8 +21,8 @@
             }
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
-              <a class="main-navigation__list-item-link" href="#"><?= htmlspecialchars($val); ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['projects'], htmlspecialchars($val)); ?></span>
+              <a class="main-navigation__list-item-link" href="/index.php?project=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -33,27 +41,12 @@
     </form>
 
     <div class="tasks-controls">
-      <div class="radio-button-group">
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio" checked="">
-          <span class="radio-button__text">Все задачи</span>
-        </label>
-
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio">
-          <span class="radio-button__text">Повестка дня</span>
-        </label>
-
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio">
-          <span class="radio-button__text">Завтра</span>
-        </label>
-
-        <label class="radio-button">
-          <input class="radio-button__input visually-hidden" type="radio" name="radio">
-          <span class="radio-button__text">Просроченные</span>
-        </label>
-      </div>
+      <nav class="tasks-switch">
+        <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
+        <a href="/" class="tasks-switch__item">Повестка дня</a>
+        <a href="/" class="tasks-switch__item">Завтра</a>
+        <a href="/" class="tasks-switch__item">Просроченные</a>
+      </nav>
 
       <label class="checkbox">
         <input id="show-complete-tasks" class="checkbox__input visually-hidden" checked type="checkbox">
@@ -63,7 +56,7 @@
 
     <table class="tasks">
       <?php
-      foreach ($templateData['tasks'] as $key => $val):
+      foreach ($templateData['tasksToDisplay'] as $key => $val):
           $taskCompleted = '';
 
           if ($val['result'] == 'Да') {
@@ -84,5 +77,4 @@
     </table>
   </main>
 </div>
-</div>
-</div>
+
