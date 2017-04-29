@@ -46,7 +46,7 @@ if (isset($_GET['project'])) {
     $project = (int) abs(($_GET['project']));
 
     if ($project > count($taskList) - 1) {
-        header(404);
+        header("HTTP/1.0 404 Not Found");
         exit();
     } else {
         $tasksToDisplay = array_filter($taskList, function($task) use ($projectList, $project) 
