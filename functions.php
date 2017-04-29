@@ -1,30 +1,31 @@
 <?php
+
 /**
-    * Функция печатает шаблон.
-    * @param string $template имя шаблона
-    * @param array $templateData - данные для шаблона, ожидаются ключи 'projects' и 'tasks'
-    * @return string
-  */
-function includeTemplate($template, $templateData)
-{
-    if(!isset($template)){
+ * Функция печатает шаблон.
+ * @param string $template имя шаблона
+ * @param array $templateData - данные для шаблона, ожидаются ключи 'projects' и 'tasks'
+ * @return string
+ */
+function includeTemplate($template, $templateData) {
+    if (!isset($template)) {
         return "";
     }
     ob_start();
-    
-    /*htmlspecialcharacters() используется в шаблоне при выводе данных*/
-    require_once __DIR__."/templates/$template";
-    
+
+    /* htmlspecialcharacters() используется в шаблоне при выводе данных */
+    require_once __DIR__ . "/templates/$template";
+
     $html = ob_get_clean();
-    
+
     return $html;
 }
+
 /**
-    * Функция считает количество задач.
-    * @param array $taskList массив задач
-    * @param string $nameCategory - имя категории
-    * @return number 
-  */
+ * Функция считает количество задач.
+ * @param array $taskList массив задач
+ * @param string $nameCategory - имя категории
+ * @return int 
+ */
 function getNumberTasks($taskList, $nameCategory) {
     if (!$nameCategory) {
         return 0;

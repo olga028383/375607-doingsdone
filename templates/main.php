@@ -10,7 +10,7 @@ array $templateData['tasks'] новый массив состоящий из з�
     <nav class="main-navigation">
       <ul class="main-navigation__list">
         <?php
-        foreach ($templateData['project'] as $key => $val):
+        foreach ($templateData['projects'] as $key => $val):
             $firstItem = '';
 
             if ($key == 0) {
@@ -18,8 +18,8 @@ array $templateData['tasks'] новый массив состоящий из з�
             }
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
-              <a class="main-navigation__list-item-link" href="/375607-doingsdone/index.php?project=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['countTask'], htmlspecialchars($val)); ?></span>
+              <a class="main-navigation__list-item-link" href="/index.php?project=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val)); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -53,7 +53,7 @@ array $templateData['tasks'] новый массив состоящий из з�
 
     <table class="tasks">
       <?php
-      foreach ($templateData['tasks'] as $key => $val):
+      foreach ($templateData['tasksToDisplay'] as $key => $val):
           $taskCompleted = '';
 
           if ($val['result'] == 'Да') {

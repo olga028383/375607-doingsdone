@@ -75,7 +75,7 @@ if (isset($_GET['project'])) {
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', []); ?>
 
-        <?= includeTemplate('main.php', ['project' => $projectList, 'tasks' => $tasksToDisplay, 'countTask' => $taskList]); ?>
+        <?= includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]); ?>
 
         <?= includeTemplate('footer.php', []); ?>
 
