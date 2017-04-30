@@ -41,6 +41,8 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
+
+// Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
 if (isset($_GET['project'])) {
@@ -58,37 +60,42 @@ if (isset($_GET['project'])) {
     $tasksToDisplay = $taskList;
 }
 
+// Если пришёл get-параметр add, то покажем форму добавления проекта
 $bodyClassOverlay = '';
 $modalShow = false;
-if (isset($_GET['add'])) {
+if (isset($_GET['add']) || isset($_POST['send'])) {
     $bodyClassOverlay = 'overlay';
     $modalShow = true;
 }
-$errors = ['task' => false, 'project' => false, 'date' => false];
-$newTask = ['result' => 'Нет', 'task' => '', 'project' => '', 'date' => ''];
+
+$expectedFields = ['task', 'project', 'date'];
+// Инициализируем все ожидаемые поля в $newTask, и сбрасываем $errors в false для каждого поля
+$newTask = ['result' => 'Нет'];
+$errors = [];
+foreach ($expectedFields as $field) {
+    $newTask[$field] = '';
+    $errors[$field] = false;
+}
 if (isset($_POST['send'])) {
-    $expectedFields = ['task', 'project', 'date'];
+    $errorsFound = false;
     foreach ($expectedFields as $name) {
         if (!empty($_POST[$name])) {
-            $newTask[$name] = checkInput($_POST[$name]);
+            $newTask[$name] = sanitizeInput($_POST[$name]);
         } else {
             $errors[$name] = true;
-            $bodyClassOverlay = 'overlay';
-            $modalShow = true;
+            $errorsFound = true;
         }
     }
-    if (count($newTask) > 3) {
+    if (!$errorsFound) {
         array_unshift($tasksToDisplay, $newTask);
+        $bodyClassOverlay = '';
+        $modalShow = false;
     }
-    if (isset($_FILES['preview'])) {
-        $file = $_FILES['preview'];
-        var_dump($file);
-        move_uploaded_file($file['tmp_name'], '/');
+    if (is_uploaded_file($_FILES['preview']['tmp_name'])){
+      $file = $_FILES['preview'];
+      var_dump($file);
+      move_uploaded_file($file['tmp_name'], '/');
     }
-    //if (is_uploaded_file($_FILES['preview']['tmp_name'])){
-    //  $file = $_FILES['preview'];
-    //  move_uploaded_file($file['tmp_name'], '/');
-    //}
 }
 ?>
 <!DOCTYPE html>
@@ -115,7 +122,7 @@ if (isset($_POST['send'])) {
 
     <?php
     if ($modalShow) {
-        print(includeTemplate('add-project.php', ['errors' => $errors, 'allTasks' => $projectList, 'newTask' => $newTask]));
+        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
     }
     ?>
     <script type="text/javascript" src="js/script.js"></script>

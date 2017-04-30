@@ -1,21 +1,25 @@
 <?php
 /**
  * Функция выводит блок с ошибкой.
- * @param boolean $errors  - ошибка пришла
+ * @param array $errors  - массив с ошибками
+ * @param string $name
  */
-function addRequiredSpan($errors) {
-    if (!empty($errors)) {
+function addRequiredSpan($errors, $name)
+{
+    if ($errors[$name]) {
         print("<span>Обязательное поле</span>");
     }
 }
 
 /**
  * Функция устанавливает стиль для незаполненных поле формы.
- * @param boolean $fieldError  - ошибка пришла
+ * @param array $errors  - массив с ошибками
+ * @param string $name
  * @return string
  */
-function setClassError($error) {
-    return ($error) ? 'form__input--error' : '';
+function setClassError($errors, $name)
+{
+    return ($errors[$name]) ? 'form__input--error' : '';
 }
 
 /**
@@ -23,7 +27,7 @@ function setClassError($error) {
  * @param string $data принимает строку
  * @return string
  */
-function checkInput($data) {
+function sanitizeInput($data) {
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
@@ -45,9 +49,7 @@ function includeTemplate($template, $templateData) {
     /* htmlspecialcharacters() используется в шаблоне при выводе данных */
     require_once __DIR__ . "/templates/$template";
 
-    $html = ob_get_clean();
-
-    return $html;
+    return ob_get_clean();
 }
 
 /**
