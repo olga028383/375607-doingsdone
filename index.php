@@ -91,10 +91,11 @@ if (isset($_POST['send'])) {
         $bodyClassOverlay = '';
         $modalShow = false;
     }
-    if (is_uploaded_file($_FILES['preview']['tmp_name'])) {
+    if (isset($_FILES['preview'])) {
         $file = $_FILES['preview'];
-        var_dump($file);
-        move_uploaded_file($file['tmp_name'], '/');
+        if (is_uploaded_file($file['tmp_name'])) {
+            move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+        }
     }
 }
 ?>

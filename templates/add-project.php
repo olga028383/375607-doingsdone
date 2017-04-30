@@ -27,7 +27,7 @@ function getFormValue($templateData, $name)
 }
 ?>
 <div class="modal">
-  <button class="modal__close" type="button" name="button">Закрыть</button>
+  <a href="/" class="modal__close">Закрыть</a>
 
   <h2 class="modal__heading">Добавление задачи</h2>
 
