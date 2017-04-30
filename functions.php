@@ -1,12 +1,23 @@
 <?php
 /**
+ * Функция выводит блок с ошибкой.
+ * @param boolean $errors  - ошибка пришла
+ */
+function addRequiredSpan($errors) {
+    if (!empty($errors)) {
+        print("<span>Обязательное поле</span>");
+    }
+}
+
+/**
  * Функция устанавливает стиль для незаполненных поле формы.
  * @param boolean $fieldError  - ошибка пришла
  * @return string
  */
-function setClassError($error){
-    return (!empty($error))? 'form__input--error': '';
-} 
+function setClassError($error) {
+    return ($error) ? 'form__input--error' : '';
+}
+
 /**
  * Функция очищает входящие данные.
  * @param string $data принимает строку

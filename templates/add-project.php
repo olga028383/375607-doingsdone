@@ -1,3 +1,10 @@
+<?php
+/**
+ * Шаблон принимает массив параметров,
+ * array $templateData['errors'] содержит массив ошибок для каждого поля,
+ * array $templateData['allTasks'] массив состоящий из полного списка задач,для формирования выподающего списка
+ */
+?>
 <div class="modal">
   <button class="modal__close" type="button" name="button">Закрыть</button>
 
@@ -5,35 +12,26 @@
 
   <form class="form" class="" action="/index.php" method="post">
     <div class="form__row">
-      <label class="form__label" for="name">Название <sup>*</sup></label>
+      <label class="form__label" for="task">Название <sup>*</sup></label>
       <?php
-      $errorStyleName = setClassError($templateData['nameError']);
-      if(!empty($errorStyleName )){
-          print("<span>Заполните поле с названием</span>");
-      }
+      $errorStyleName = setClassError($templateData['errors']['task']);
+      addRequiredSpan($errorStyleName);
       ?>
-      
-      <input class="form__input <?=$errorStyleName;?>" type="text" name="name" id="name" value="" placeholder="Введите название">
+
+      <input class="form__input <?= $errorStyleName; ?>" type="text" name="task" id="name" value="" placeholder="Введите название">
     </div>
 
     <div class="form__row">
       <label class="form__label" for="project">Проект <sup>*</sup></label>
       <?php
-      $errorStyleProject = setClassError($templateData['newProjectError']);
-      if(!empty($errorStyleProject)){
-          print("<span>Выберите проект</span>");
-      }
+      $errorStyleProject = setClassError($templateData['errors']['project']);
+      addRequiredSpan($errorStyleProject);
       ?>
-      
-      <select class="form__input form__input--select  <?=$errorStyleProject;?>" name="project" id="project">
-        <option selected disabled>Выберите проект</option>
-        <?php
-        foreach ($templateData['allTasks'] as $key => $val):
-            if ($key == 0) {
-                continue;
-            }
-        ?>
-            <option value="<?=$key;?>"><?= $val; ?></option>
+
+      <select class="form__input form__input--select  <?= $errorStyleProject; ?>" name="project" id="project" value="Выберите проект">
+        <option value="" selected >Выберите проект</option>
+        <?php foreach ($templateData['allTasks'] as $key => $val): ?>
+            <option value="<?= $val; ?>"><?= $val; ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -41,12 +39,10 @@
     <div class="form__row">
       <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
       <?php
-      $errorStyleDate = setClassError($templateData['dateError']);
-      if(!empty($errorStyleDate)){
-          print("<span>Заполните поле с датой</span>");
-      }
+      $errorStyleDate = setClassError($templateData['errors']['date']);
+      addRequiredSpan($errorStyleDate);
       ?>
-      <input class="form__input form__input--date <?=$errorStyleDate;?>" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+      <input class="form__input form__input--date <?= $errorStyleDate; ?>" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
     <div class="form__row">
@@ -62,7 +58,7 @@
     </div>
 
     <div class="form__row form__row--controls">
-      <input class="button" type="submit" name="" value="Добавить">
+      <input class="button" type="submit" name="send" value="Добавить">
     </div>
   </form>
 </div>
