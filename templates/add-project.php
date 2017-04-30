@@ -26,10 +26,14 @@
       <?php
       $errorStyleProject = setClassError($templateData['errors']['project']);
       addRequiredSpan($errorStyleProject);
+      $select = 'Выберите проект';
+      if ($templateData['newTask']['project']) {
+          $select = $templateData['newTask']['project'];
+      }
       ?>
 
-      <select class="form__input form__input--select  <?= $errorStyleProject; ?>" name="project" id="project" value="<?= $templateData['newTask']['project']; ?>">
-        <option value="" selected >Выберите проект</option>
+      <select class="form__input form__input--select  <?= $errorStyleProject; ?>" name="project" id="project" value="пооп">
+        <option value="<?= $templateData['newTask']['project']; ?>" selected ><?= $select ?></option>
         <?php foreach ($templateData['allTasks'] as $key => $val): ?>
             <option value="<?= $val; ?>"><?= $val; ?></option>
         <?php endforeach; ?>
