@@ -18,7 +18,7 @@
       addRequiredSpan($errorStyleName);
       ?>
 
-      <input class="form__input <?= $errorStyleName; ?>" type="text" name="task" id="name" value="" placeholder="Введите название">
+      <input class="form__input <?= $errorStyleName; ?>" type="text" name="task" id="name" value="<?= $templateData['newTask']['task']; ?>" placeholder="Введите название">
     </div>
 
     <div class="form__row">
@@ -28,7 +28,7 @@
       addRequiredSpan($errorStyleProject);
       ?>
 
-      <select class="form__input form__input--select  <?= $errorStyleProject; ?>" name="project" id="project" value="Выберите проект">
+      <select class="form__input form__input--select  <?= $errorStyleProject; ?>" name="project" id="project" value="<?= $templateData['newTask']['project']; ?>">
         <option value="" selected >Выберите проект</option>
         <?php foreach ($templateData['allTasks'] as $key => $val): ?>
             <option value="<?= $val; ?>"><?= $val; ?></option>
@@ -42,7 +42,7 @@
       $errorStyleDate = setClassError($templateData['errors']['date']);
       addRequiredSpan($errorStyleDate);
       ?>
-      <input class="form__input form__input--date <?= $errorStyleDate; ?>" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+      <input class="form__input form__input--date <?= $errorStyleDate; ?>" type="text" name="date" id="date" value="<?= $templateData['newTask']['date']; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
     <div class="form__row">

@@ -60,15 +60,14 @@ if (isset($_GET['project'])) {
 
 $bodyClassOverlay = '';
 $modalShow = false;
-$errors = ['task' => false, 'project' => false, 'date' => false];
 if (isset($_GET['add'])) {
     $bodyClassOverlay = 'overlay';
     $modalShow = true;
 }
+$errors = ['task' => false, 'project' => false, 'date' => false];
+$newTask = ['result' => 'Нет', 'task' => '', 'project' => '', 'date' => ''];
 if (isset($_POST['send'])) {
     $expectedFields = ['task', 'project', 'date'];
-    $newTask = ['result' => 'Нет'];
-
     foreach ($expectedFields as $name) {
         if (!empty($_POST[$name])) {
             $newTask[$name] = checkInput($_POST[$name]);
@@ -116,7 +115,7 @@ if (isset($_POST['send'])) {
 
     <?php
     if ($modalShow) {
-        print(includeTemplate('add-project.php', ['errors' => $errors, 'allTasks' => $projectList]));
+        print(includeTemplate('add-project.php', ['errors' => $errors, 'allTasks' => $projectList, 'newTask' => $newTask]));
     }
     ?>
     <script type="text/javascript" src="js/script.js"></script>
