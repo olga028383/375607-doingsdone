@@ -1,4 +1,5 @@
 <?php
+ob_start();
 error_reporting(E_ALL);
 require_once 'functions.php';
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
@@ -40,6 +41,8 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
+
+// Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
 if (isset($_GET['project'])) {
@@ -56,6 +59,45 @@ if (isset($_GET['project'])) {
 } else {
     $tasksToDisplay = $taskList;
 }
+
+// Если пришёл get-параметр add, то покажем форму добавления проекта
+$bodyClassOverlay = '';
+$modalShow = false;
+if (isset($_GET['add']) || isset($_POST['send'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShow = true;
+}
+
+$expectedFields = ['task', 'project', 'date'];
+// Инициализируем все ожидаемые поля в $newTask, и сбрасываем $errors в false для каждого поля
+$newTask = ['result' => 'Нет'];
+$errors = [];
+foreach ($expectedFields as $field) {
+    $newTask[$field] = '';
+    $errors[$field] = false;
+}
+if (isset($_POST['send'])) {
+    $errorsFound = false;
+    foreach ($expectedFields as $name) {
+        if (!empty($_POST[$name])) {
+            $newTask[$name] = sanitizeInput($_POST[$name]);
+        } else {
+            $errors[$name] = true;
+            $errorsFound = true;
+        }
+    }
+    if (!$errorsFound) {
+        array_unshift($tasksToDisplay, $newTask);
+        $bodyClassOverlay = '';
+        $modalShow = false;
+    }
+    if (isset($_FILES['preview'])) {
+        $file = $_FILES['preview'];
+        if (is_uploaded_file($file['tmp_name'])) {
+            move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +109,7 @@ if (isset($_GET['project'])) {
     <link rel="stylesheet" href="css/style.css">
   </head>
 
-  <body><!--class="overlay"-->
+  <body class=<?= $bodyClassOverlay; ?>>
     <h1 class="visually-hidden">Дела в порядке</h1>
 
     <div class="page-wrapper">
@@ -79,7 +121,11 @@ if (isset($_GET['project'])) {
     </div>
     <?= includeTemplate('footer.php', []); ?>
 
-    <?= includeTemplate('add-project.php', []); ?>
+    <?php
+    if ($modalShow) {
+        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
+    }
+    ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>
 </html>
