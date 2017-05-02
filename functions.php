@@ -1,13 +1,86 @@
 <?php
+
+/**
+ * Функция находит пользователя по email массиве всех пользователей
+ * @param array $users массив пользователей
+ * @param string $email  эл. почта
+ * @return truе если пользоваетель существует или null 
+ */
+function searchUserByEmail($email, $users)
+{
+    $result = null;
+    foreach ($users as $user) {
+        if ($user['email'] == $email) {
+            $result = $user;
+            break;
+        }
+    }
+    return $result;
+}
+
+/**
+ * Функция проверяет наличие заполненных полей и записывет значение в массив валидации,
+ * если проверка на ауторизацию , то так же проверяет переданный email на наличие в массиве c пользователями
+ * @param array $field массив ключей
+ * @param array $output массив для записи результата
+ * @param array $users  массив пользователей
+ * @return truе если массив с ошибками пуст
+ */
+function validationField($field, $output, $users = null)
+{
+    $errors = false;
+    $user = [];
+    if ($users) {
+        foreach ($field as $name) {
+            if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
+                $output['valid'][$name] = sanitizeInput($_POST[$name]);
+                $output['user'] = $user;
+            } else {
+                $output['errors'][$name] = true;
+                $errors = true;
+            }
+        }
+    } else {
+        foreach ($field as $name) {
+            if (!empty($_POST[$name])) {
+                $output['valid'][$name] = sanitizeInput($_POST[$name]);
+            } else {
+                $output['errors'][$name] = true;
+                $errors = true;
+            }
+        }
+    }
+    return ['error' => $errors, 'output' => $output, 'user' => $user];
+}
+
+/**
+ * Функция инициализирует массивы валидных и не валидных полей и наполняет ключами из массива ожидаемых полей post- массива
+ * @param array $keysField копируемый массив
+ * @return возвращает заполненный массив
+ */
+function AddkeysForValidation($keysField)
+{
+    $result = [];
+    foreach ($keysField as $field) {
+        $result['valid'][$field] = '';
+        $result['errors'][$field] = false;
+    }
+    return $result;
+}
+
 /**
  * Функция выводит блок с ошибкой.
  * @param array $errors  - массив с ошибками
  * @param string $name
  */
-function addRequiredSpan($errors, $name)
+function addRequiredSpan($errors, $name, $text='')
 {
     if ($errors[$name]) {
-        print("<span>Обязательное поле</span>");
+        if ($text) {
+            print("<p class='form__message'>$text</span>");
+        } else {
+            print("<span>Обязательное поле</span>");
+        }
     }
 }
 
@@ -27,7 +100,8 @@ function setClassError($errors, $name)
  * @param string $data принимает строку
  * @return string
  */
-function sanitizeInput($data) {
+function sanitizeInput($data)
+{
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
@@ -40,7 +114,8 @@ function sanitizeInput($data) {
  * @param array $templateData - данные для шаблона
  * @return string
  */
-function includeTemplate($template, $templateData) {
+function includeTemplate($template, $templateData)
+{
     if (!isset($template)) {
         return "";
     }
@@ -58,7 +133,8 @@ function includeTemplate($template, $templateData) {
  * @param string $nameCategory - имя категории
  * @return int 
  */
-function getNumberTasks($taskList, $nameCategory) {
+function getNumberTasks($taskList, $nameCategory)
+{
     if (!$nameCategory) {
         return 0;
     }

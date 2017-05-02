@@ -1,5 +1,4 @@
-<?php
-ob_start();
+<?
 error_reporting(E_ALL);
 require_once 'functions.php';
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
@@ -41,7 +40,59 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
+//проводим аутентификацию пользователя
+$usersAuth = [
+    [
+        'email' => '123@mail.ru',
+        'name' => 'Ирина',
+        'password' => password_hash('123', PASSWORD_DEFAULT)
+    ],
+    [
+        'email' => '456@mail.ru',
+        'name' => 'Елена',
+        'password' => password_hash('456', PASSWORD_DEFAULT)
+    ],
+    [
+        'email' => '789@mail.ru',
+        'name' => 'Игорь',
+        'password' => password_hash('789', PASSWORD_DEFAULT)
+    ]
+];
+$user = [];
+session_start();
+$bodyClassOverlay = '';
+$modalShow = false;
+$showAuthenticationForm = false;
+// Если пришёл get-параметр add, то покажем форму добавления проекта
+if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
+    $bodyClassOverlay = 'overlay';
+    $showAuthenticationForm = true;
+}
+$expectedFieldsAuth = ['email', 'password'];
+$newFieldAuth = AddkeysForValidation($expectedFieldsAuth);
+if (isset($_POST['sendAuth'])) {
 
+    $resultAuth = validationField($expectedFieldsAuth, $newFieldAuth, $usersAuth);
+
+    if (!$resultAuth['error']) {
+        if (password_verify($_POST['password'], $resultAuth['output']['user']['password'])) {
+            $user = $resultAuth['output']['user'];
+            $bodyClassOverlay = '';
+            $showAuthenticationForm = false;
+            $_SESSION['user'] = $user;
+            //header("Location: /index.php");
+        }
+    }
+}
+//если пришел параметр exit то удаляем сессию
+if (isset($_GET['exit'])) {
+    unset($_SESSION['user']);
+    header("Location: /index.php");
+}
+if (isset($_GET['add']) || isset($_POST['send'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShow = true;
+}
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
@@ -58,14 +109,6 @@ if (isset($_GET['project'])) {
     }
 } else {
     $tasksToDisplay = $taskList;
-}
-
-// Если пришёл get-параметр add, то покажем форму добавления проекта
-$bodyClassOverlay = '';
-$modalShow = false;
-if (isset($_GET['add']) || isset($_POST['send'])) {
-    $bodyClassOverlay = 'overlay';
-    $modalShow = true;
 }
 
 $expectedFields = ['task', 'project', 'date'];
@@ -114,13 +157,17 @@ if (isset($_POST['send'])) {
 
     <div class="page-wrapper">
       <div class="container container--with-sidebar">
-        <?= includeTemplate('header.php', []); ?>
+        <?= includeTemplate('header.php', ['user' => $user]); ?>
 
         <?= includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]); ?>
       </div>
     </div>
     <?= includeTemplate('footer.php', []); ?>
-
+    <?php
+    if ($showAuthenticationForm) {
+        print(includeTemplate('guest.php', ['errors' => $resultAuth['output']['errors'], 'valid' => $resultAuth['output']['valid']]));
+    }
+    ?>
     <?php
     if ($modalShow) {
         print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
