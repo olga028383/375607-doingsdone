@@ -1,6 +1,8 @@
 <?
+session_start();
 error_reporting(E_ALL);
 require_once 'functions.php';
+require_once 'userdata.php';
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $taskList = [
     [
@@ -40,26 +42,7 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
-//проводим аутентификацию пользователя
-$usersAuth = [
-    [
-        'email' => 'ignat.v@gmail.com',
-        'name' => 'Игнат',
-        'password' => '$2y$10$OqvsKHQwr0Wk6FMZDoHo1uHoXd4UdxJG/5UDtUiie00XaxMHrW8ka'
-    ],
-    [
-        'email' => 'kitty_93@li.ru',
-        'name' => 'Леночка',
-        'password' => '$2y$10$bWtSjUhwgggtxrnJ7rxmIe63ABubHQs0AS0hgnOo41IEdMHkYoSVa'
-    ],
-    [
-        'email' => 'warrior07@mail.ru',
-        'name' => 'Руслан',
-        'password' => '$2y$10$2OxpEH7narYpkOT1H5cApezuzh10tZEEQ2axgFOaKW.55LxIJBgWW'
-    ]
-];
 $user = [];
-session_start();
 $bodyClassOverlay = '';
 $modalShow = false;
 $showAuthenticationForm = false;
@@ -72,19 +55,21 @@ $expectedFieldsAuth = ['email', 'password'];
 $newFieldAuth = AddkeysForValidation($expectedFieldsAuth);
 if (isset($_POST['sendAuth'])) {
 
-    $resultAuth = validationField($expectedFieldsAuth, $newFieldAuth, $usersAuth);
+    $resultAuth = validationField($expectedFieldsAuth, $newFieldAuth, $users);
 
     if (!$resultAuth['error']) {
         if (password_verify($_POST['password'], $resultAuth['output']['user']['password'])) {
-            $user = $resultAuth['output']['user'];
-            $bodyClassOverlay = '';
-            $showAuthenticationForm = false;
-            $_SESSION['user'] = $user;
+            $_SESSION['user'] = $resultAuth['output']['user'];
             header("Location: /index.php");
             exit();
+        } else {
+            $resultAuth['output']['errors']['password'] = true;
         }
     }
 }
+//Записываю сессию с информацией о пльзователе в переменную, если она есть
+$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
+
 //если пришел параметр exit то удаляем сессию
 if (isset($_GET['exit'])) {
     unset($_SESSION['user']);
@@ -154,7 +139,6 @@ if (isset($_POST['send'])) {
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
   </head>
-
   <body class=<?= $bodyClassOverlay; ?>>
     <h1 class="visually-hidden">Дела в порядке</h1>
 

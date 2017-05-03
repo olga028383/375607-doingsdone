@@ -21,7 +21,7 @@
           </div>
 
           <div class="user-menu__data">
-            <p>Константин</p>
+            <p><?= $templateData['user']['name'] ?></p>
 
             <a href="index.php?exit">Выйти</a>
           </div>

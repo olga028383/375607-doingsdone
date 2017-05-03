@@ -26,30 +26,21 @@ function searchUserByEmail($email, $users)
  * @param array $users  массив пользователей
  * @return truе если массив с ошибками пуст
  */
-function validationField($field, $output, $users = null)
+function validationField($field, $output, $users)
 {
     $errors = false;
     $user = [];
-    if ($users) {
-        foreach ($field as $name) {
-            if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
-                $output['valid'][$name] = sanitizeInput($_POST[$name]);
-                $output['user'] = $user;
-            } else {
-                $output['errors'][$name] = true;
-                $errors = true;
-            }
-        }
-    } else {
-        foreach ($field as $name) {
-            if (!empty($_POST[$name])) {
-                $output['valid'][$name] = sanitizeInput($_POST[$name]);
-            } else {
-                $output['errors'][$name] = true;
-                $errors = true;
-            }
+
+    foreach ($field as $name) {
+        if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
+            $output['valid'][$name] = sanitizeInput($_POST[$name]);
+            $output['user'] = $user;
+        } else {
+            $output['errors'][$name] = true;
+            $errors = true;
         }
     }
+
     return ['error' => $errors, 'output' => $output, 'user' => $user];
 }
 
@@ -73,7 +64,7 @@ function AddkeysForValidation($keysField)
  * @param array $errors  - массив с ошибками
  * @param string $name
  */
-function addRequiredSpan($errors, $name, $text='')
+function addRequiredSpan($errors, $name, $text = '')
 {
     if ($errors[$name]) {
         if ($text) {
