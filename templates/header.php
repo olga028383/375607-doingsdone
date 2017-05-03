@@ -2,11 +2,12 @@
 /**
  * Шаблон принимает массив параметров,
  * array $templateData['user'] содержит логин и пароль пользователя,
-  Если массив пустой, то показываем ссылку входа, если в нем пришли параметры - то показываем шапку интерфейса
+ * Если массив пустой, то показываем ссылку входа, если в нем пришли параметры - то показываем шапку интерфейса
  */
-if (!empty($templateData['user'])) :
-    ?>
-    <header class="main-header">
+?>
+<header class="main-header">
+  <?php if (!empty($templateData['user'])) : ?>
+
       <a href="#">
         <img src="img/logo.png" width="153" height="42" alt="Логитип Дела в порядке">
       </a>
@@ -26,9 +27,8 @@ if (!empty($templateData['user'])) :
           </div>
         </div>
       </div>
-    </header>
-<?php else: ?>
-    <header class="main-header">
+  <?php else: ?>
+
       <a href="#">
         <img src="../img/logo.png" width="153" height="42" alt="Логитип Дела в порядке">
       </a>
@@ -36,5 +36,6 @@ if (!empty($templateData['user'])) :
       <div class="main-header__side">
         <a class="main-header__side-item button button--transparent" href="index.php?login">Войти</a>
       </div>
-    </header>
-<?php endif; ?>
+
+  <?php endif; ?>
+</header>

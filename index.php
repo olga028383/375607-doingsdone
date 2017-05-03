@@ -43,19 +43,19 @@ $taskList = [
 //проводим аутентификацию пользователя
 $usersAuth = [
     [
-        'email' => '123@mail.ru',
-        'name' => 'Ирина',
-        'password' => password_hash('123', PASSWORD_DEFAULT)
+        'email' => 'ignat.v@gmail.com',
+        'name' => 'Игнат',
+        'password' => '$2y$10$OqvsKHQwr0Wk6FMZDoHo1uHoXd4UdxJG/5UDtUiie00XaxMHrW8ka'
     ],
     [
-        'email' => '456@mail.ru',
-        'name' => 'Елена',
-        'password' => password_hash('456', PASSWORD_DEFAULT)
+        'email' => 'kitty_93@li.ru',
+        'name' => 'Леночка',
+        'password' => '$2y$10$bWtSjUhwgggtxrnJ7rxmIe63ABubHQs0AS0hgnOo41IEdMHkYoSVa'
     ],
     [
-        'email' => '789@mail.ru',
-        'name' => 'Игорь',
-        'password' => password_hash('789', PASSWORD_DEFAULT)
+        'email' => 'warrior07@mail.ru',
+        'name' => 'Руслан',
+        'password' => '$2y$10$2OxpEH7narYpkOT1H5cApezuzh10tZEEQ2axgFOaKW.55LxIJBgWW'
     ]
 ];
 $user = [];
@@ -63,7 +63,7 @@ session_start();
 $bodyClassOverlay = '';
 $modalShow = false;
 $showAuthenticationForm = false;
-// Если пришёл get-параметр add, то покажем форму добавления проекта
+// Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
 if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
     $bodyClassOverlay = 'overlay';
     $showAuthenticationForm = true;
@@ -80,7 +80,8 @@ if (isset($_POST['sendAuth'])) {
             $bodyClassOverlay = '';
             $showAuthenticationForm = false;
             $_SESSION['user'] = $user;
-            //header("Location: /index.php");
+            header("Location: /index.php");
+            exit();
         }
     }
 }
@@ -88,7 +89,9 @@ if (isset($_POST['sendAuth'])) {
 if (isset($_GET['exit'])) {
     unset($_SESSION['user']);
     header("Location: /index.php");
+    exit();
 }
+// Если пришёл get-параметр add, то покажем форму добавления проекта
 if (isset($_GET['add']) || isset($_POST['send'])) {
     $bodyClassOverlay = 'overlay';
     $modalShow = true;

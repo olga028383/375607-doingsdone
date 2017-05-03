@@ -4,7 +4,7 @@
  * Функция находит пользователя по email массиве всех пользователей
  * @param array $users массив пользователей
  * @param string $email  эл. почта
- * @return truе если пользоваетель существует или null 
+ * @return $user если пользоваетель существует или null 
  */
 function searchUserByEmail($email, $users)
 {
