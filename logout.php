@@ -1,5 +1,5 @@
 <?php
-// не понимаю тут почем-то null приходит
+session_start();
 unset($_SESSION['user']);
 header("Location: /index.php");
 exit();
