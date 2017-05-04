@@ -15,9 +15,14 @@
         <?php
         foreach ($templateData['projects'] as $key => $val):
             $firstItem = '';
-
-            if ($key == 0) {
-                $firstItem = "main-navigation__list-item--active";
+            if(!empty($_GET['project'])){
+                if ($key == $_GET['project']) {
+                    $firstItem = "main-navigation__list-item--active";
+                }
+            }else{
+                if ($key == 0) {
+                    $firstItem = "main-navigation__list-item--active";
+                }
             }
             ?>
             <li class="main-navigation__list-item <?= $firstItem; ?>">
