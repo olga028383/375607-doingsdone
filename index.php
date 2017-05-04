@@ -1,7 +1,8 @@
-<?php
-ob_start();
+<?
+session_start();
 error_reporting(E_ALL);
 require_once 'functions.php';
+require_once 'userdata.php';
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $taskList = [
     [
@@ -42,6 +43,42 @@ $taskList = [
     ]
 ];
 
+$user = [];
+$bodyClassOverlay = '';
+$modalShow = false;
+$showAuthenticationForm = false;
+// Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
+if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
+    $bodyClassOverlay = 'overlay';
+    $showAuthenticationForm = true;
+}
+
+$dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
+
+if (isset($_POST['sendAuth'])) {
+
+    $resultAuth = validateLoginForm($users);
+
+    if (!$resultAuth['error']) {
+        if (password_verify($_POST['password'], $resultAuth['user']['password'])) {
+            $_SESSION['user'] = $resultAuth['user'];
+            header("Location: /index.php");
+            exit();
+        } else {
+            $resultAuth['output']['errors']['password'] = true;
+        }
+    }
+    $dataForHeaderTemplate = $resultAuth['output'];
+}
+
+//Записываю сессию с информацией о пльзователе в переменную, если она есть
+$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
+
+// Если пришёл get-параметр add, то покажем форму добавления проекта
+if (isset($_GET['add']) || isset($_POST['send'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShow = true;
+}
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
@@ -58,14 +95,6 @@ if (isset($_GET['project'])) {
     }
 } else {
     $tasksToDisplay = $taskList;
-}
-
-// Если пришёл get-параметр add, то покажем форму добавления проекта
-$bodyClassOverlay = '';
-$modalShow = false;
-if (isset($_GET['add']) || isset($_POST['send'])) {
-    $bodyClassOverlay = 'overlay';
-    $modalShow = true;
 }
 
 $expectedFields = ['task', 'project', 'date'];
@@ -108,23 +137,26 @@ if (isset($_POST['send'])) {
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
   </head>
-
   <body class=<?= $bodyClassOverlay; ?>>
     <h1 class="visually-hidden">Дела в порядке</h1>
 
     <div class="page-wrapper">
       <div class="container container--with-sidebar">
-        <?= includeTemplate('header.php', []); ?>
-
-        <?= includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]); ?>
+        <?= includeTemplate('header.php', ['user' => $user]); ?>
+        <?php
+        if (!$user) {
+            print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
+        } else {
+            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]));
+        }
+        ?>
       </div>
     </div>
-    <?= includeTemplate('footer.php', []); ?>
-
     <?php
-    if ($modalShow) {
-        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
-    }
+        print includeTemplate('footer.php', ['user' => $user]);
+        if ($modalShow) {
+            print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
+        }
     ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>

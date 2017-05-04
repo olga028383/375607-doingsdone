@@ -16,5 +16,10 @@ $users = [
         'email' => 'warrior07@mail.ru',
         'name' => 'Руслан',
         'password' => '$2y$10$2OxpEH7narYpkOT1H5cApezuzh10tZEEQ2axgFOaKW.55LxIJBgWW'
+    ],
+    [
+        'email' => '123@mail.ru',
+        'name' => 'Руслан',
+        'password' => password_hash('123', PASSWORD_DEFAULT)
     ]
 ];
