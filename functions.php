@@ -21,26 +21,29 @@ function searchUserByEmail($email, $users)
 /**
  * Функция проверяет наличие заполненных полей и записывет значение в массив валидации,
  * если проверка на ауторизацию , то так же проверяет переданный email на наличие в массиве c пользователями
- * @param array $field массив ключей
- * @param array $output массив для записи результата
  * @param array $users  массив пользователей
- * @return truе если массив с ошибками пуст
+ * @return array[
+ *      'error'=>bool,
+ *      'output' => array[
+ *          'valid' => array,
+ *          'errors' => array
+ *      ]
+ *      'user' => array
  */
-function validationField($field, $output, $users)
+function validateLoginForm($users)
 {
     $errors = false;
-    $user = [];
-
-    foreach ($field as $name) {
+    $user = null;
+    $fields = ['email', 'password'];
+    $output = AddkeysForValidation($fields);
+    foreach ($fields as $name) {
         if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
             $output['valid'][$name] = sanitizeInput($_POST[$name]);
-            $output['user'] = $user;
         } else {
             $output['errors'][$name] = true;
             $errors = true;
         }
     }
-
     return ['error' => $errors, 'output' => $output, 'user' => $user];
 }
 

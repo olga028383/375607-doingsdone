@@ -28,7 +28,7 @@
       </ul>
     </nav>
 
-    <a class="button button--transparent button--plus content__side-button" href="/index.php?add">Добавить проект</a>
+    <a class="button button--transparent button--plus content__side-button" href="#">Добавить проект</a>
   </section>
 
   <main class="content__main">

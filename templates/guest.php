@@ -3,6 +3,7 @@
  * Шаблон принимает массив параметров,
  * array $templateData['errors'] содержит массив ошибок для каждого поля,
  * array $templateData['valid'] содержит массив заполненных полей
+ * bool $templateData['showAuthenticationForm']
  */
 $showModalAuth = '';
 if (!$templateData['showAuthenticationForm']) {
@@ -24,8 +25,7 @@ if (!$templateData['showAuthenticationForm']) {
     <a class="welcome__button button" href="#">Зарегистрироваться</a>
   </section>
 </div>
-</div>
-</div>
+
 <div class="modal" <?= $showModalAuth; ?> >
   <button class="modal__close" type="button" name="button">Закрыть</button>
 
@@ -70,5 +70,3 @@ if (!$templateData['showAuthenticationForm']) {
     </div>
   </form>
 </div>
-</body>
-</html>

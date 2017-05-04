@@ -42,7 +42,7 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
-$link = $_SERVER["REQUEST_URI"];
+
 $user = [];
 $bodyClassOverlay = '';
 $modalShow = false;
@@ -52,21 +52,23 @@ if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
     $bodyClassOverlay = 'overlay';
     $showAuthenticationForm = true;
 }
-$expectedFieldsAuth = ['email', 'password'];
-$newFieldAuth = AddkeysForValidation($expectedFieldsAuth);
+
+$dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
+
 if (isset($_POST['sendAuth'])) {
 
-    $resultAuth = validationField($expectedFieldsAuth, $newFieldAuth, $users);
+    $resultAuth = validateLoginForm($users);
 
     if (!$resultAuth['error']) {
-        if (password_verify($_POST['password'], $resultAuth['output']['user']['password'])) {
-            $_SESSION['user'] = $resultAuth['output']['user'];
+        if (password_verify($_POST['password'], $resultAuth['user']['password'])) {
+            $_SESSION['user'] = $resultAuth['user'];
             header("Location: /index.php");
             exit();
         } else {
             $resultAuth['output']['errors']['password'] = true;
         }
     }
+    $dataForHeaderTemplate = $resultAuth['output'];
 }
 
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
@@ -143,18 +145,18 @@ if (isset($_POST['send'])) {
         <?= includeTemplate('header.php', ['user' => $user]); ?>
         <?php
         if (!$user) {
-            print(includeTemplate('guest.php', ['errors' => $resultAuth['output']['errors'], 'valid' => $resultAuth['output']['valid'], 'showAuthenticationForm' => $showAuthenticationForm]));
+            print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
             print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]));
         }
         ?>
       </div>
     </div>
-    <?= includeTemplate('footer.php', ['user' => $user]); ?>
     <?php
-    if ($modalShow) {
-        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
-    }
+        print includeTemplate('footer.php', ['user' => $user]);
+        if ($modalShow) {
+            print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
+        }
     ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>
