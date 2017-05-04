@@ -127,6 +127,13 @@ if (isset($_POST['send'])) {
         }
     }
 }
+//если пришел параметр show_completed создаем куку
+$show_completed = '';
+if (isset($_GET['show_completed'])) {
+    $show_completed = setcookie("show_completed", sanitizeInput($_GET['show_completed']), strtotime("+30 days"));
+    header("Location: /index.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -153,10 +160,10 @@ if (isset($_POST['send'])) {
       </div>
     </div>
     <?php
-        print includeTemplate('footer.php', ['user' => $user]);
-        if ($modalShow) {
-            print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
-        }
+    print includeTemplate('footer.php', ['user' => $user]);
+    if ($modalShow) {
+        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
+    }
     ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>
