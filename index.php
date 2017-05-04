@@ -42,6 +42,7 @@ $taskList = [
         "result" => "Нет"
     ]
 ];
+$link = $_SERVER["REQUEST_URI"];
 $user = [];
 $bodyClassOverlay = '';
 $modalShow = false;
@@ -67,15 +68,10 @@ if (isset($_POST['sendAuth'])) {
         }
     }
 }
+
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
 $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
 
-//если пришел параметр exit то удаляем сессию
-if (isset($_GET['exit'])) {
-    unset($_SESSION['user']);
-    header("Location: /index.php");
-    exit();
-}
 // Если пришёл get-параметр add, то покажем форму добавления проекта
 if (isset($_GET['add']) || isset($_POST['send'])) {
     $bodyClassOverlay = 'overlay';
@@ -145,16 +141,16 @@ if (isset($_POST['send'])) {
     <div class="page-wrapper">
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', ['user' => $user]); ?>
-
-        <?= includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]); ?>
+        <?php
+        if (!$user) {
+            print(includeTemplate('guest.php', ['errors' => $resultAuth['output']['errors'], 'valid' => $resultAuth['output']['valid'], 'showAuthenticationForm' => $showAuthenticationForm]));
+        } else {
+            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]));
+        }
+        ?>
       </div>
     </div>
     <?= includeTemplate('footer.php', []); ?>
-    <?php
-    if ($showAuthenticationForm) {
-        print(includeTemplate('guest.php', ['errors' => $resultAuth['output']['errors'], 'valid' => $resultAuth['output']['valid']]));
-    }
-    ?>
     <?php
     if ($modalShow) {
         print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));

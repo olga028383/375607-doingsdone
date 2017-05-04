@@ -6,13 +6,13 @@
  */
 ?>
 <header class="main-header">
-  <?php if (!empty($templateData['user'])) : ?>
+  <a href="#">
+    <img src="img/logo.png" width="153" height="42" alt="Логитип Дела в порядке">
+  </a>
+  <div class="main-header__side">
+    <?php if (!empty($templateData['user'])) : ?>
 
-      <a href="#">
-        <img src="img/logo.png" width="153" height="42" alt="Логитип Дела в порядке">
-      </a>
 
-      <div class="main-header__side">
         <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
 
         <div class="main-header__side-item user-menu">
@@ -23,19 +23,12 @@
           <div class="user-menu__data">
             <p><?= $templateData['user']['name'] ?></p>
 
-            <a href="index.php?exit">Выйти</a>
+            <a href="/logout.php">Выйти</a>
           </div>
         </div>
-      </div>
-  <?php else: ?>
 
-      <a href="#">
-        <img src="../img/logo.png" width="153" height="42" alt="Логитип Дела в порядке">
-      </a>
-
-      <div class="main-header__side">
+    <?php else: ?>
         <a class="main-header__side-item button button--transparent" href="index.php?login">Войти</a>
-      </div>
-
-  <?php endif; ?>
+    <?php endif; ?>
+  </div>
 </header>
