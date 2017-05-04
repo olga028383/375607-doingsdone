@@ -13,19 +13,14 @@
     <nav class="main-navigation">
       <ul class="main-navigation__list">
         <?php
+        $keyToHightlight = !empty($_GET['project']) ? $_GET['project'] : 0;
         foreach ($templateData['projects'] as $key => $val):
-            $firstItem = '';
-            if(!empty($_GET['project'])){
-                if ($key == $_GET['project']) {
-                    $firstItem = "main-navigation__list-item--active";
-                }
-            }else{
-                if ($key == 0) {
-                    $firstItem = "main-navigation__list-item--active";
-                }
+            $activeClass = '';
+            if ($key == $keyToHightlight) {
+                $activeClass = "main-navigation__list-item--active";
             }
             ?>
-            <li class="main-navigation__list-item <?= $firstItem; ?>">
+            <li class="main-navigation__list-item <?= $activeClass; ?>">
               <a class="main-navigation__list-item-link" href="/index.php?project=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
               <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val)); ?></span>
             </li>
