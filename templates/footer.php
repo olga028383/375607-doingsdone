@@ -1,3 +1,10 @@
+<?php
+/**
+ * Шаблон принимает массив параметров,
+ * array $templateData['user'] содержит логин и пароль пользователя,
+ * Если массив не пустой, то показываем кнопку на добавление задачи
+ */
+?>
 <footer class="main-footer">
   <div class="container">
     <div class="main-footer__copyright">
@@ -5,9 +12,9 @@
 
       <p>Веб-приложение для удобного ведения списка дел.</p>
     </div>
-
-    <a href="index.php?add" class="main-footer__button button button--plus">Добавить задачу</a>
-
+     <?php if (!empty($templateData['user'])) : ?>
+        <a href="index.php?add" class="main-footer__button button button--plus">Добавить задачу</a>
+     <?php endif; ?>
     <div class="main-footer__social social">
       <span class="visually-hidden">Мы в соцсетях:</span>
       <a class="social__link social__link--facebook" href="#">Facebook

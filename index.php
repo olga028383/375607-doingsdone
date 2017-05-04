@@ -150,7 +150,7 @@ if (isset($_POST['send'])) {
         ?>
       </div>
     </div>
-    <?= includeTemplate('footer.php', []); ?>
+    <?= includeTemplate('footer.php', ['user' => $user]); ?>
     <?php
     if ($modalShow) {
         print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
