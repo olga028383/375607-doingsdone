@@ -27,7 +27,7 @@ if (!$templateData['showAuthenticationForm']) {
 </div>
 
 <div class="modal" <?= $showModalAuth; ?> >
-  <button class="modal__close" type="button" name="button">Закрыть</button>
+  <a href="/" class="modal__close" name="button">Закрыть</a>
 
   <h2 class="modal__heading">Вход на сайт</h2>
 
