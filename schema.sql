@@ -2,14 +2,14 @@ CREATE DATABASE `thingsarefine`;
 USE `thingsarefine`;
 CREATE TABLE `projects` (
 `id` INT AUTO_INCREMENT PRIMARY KEY,
-`name` CHAR(255),
-`user_id` INT
+`name` CHAR(255) NOT NULL,
+`user_id` INT NOT NULL
 );
 CREATE TABLE `tasks` (
 `id` INT AUTO_INCREMENT PRIMARY KEY,
-`user_id` INT,
-`project_id` INT,
-`dt_created` DATETIME,
+`user_id` INT NOT NULL,
+`project_id` INT NOT NULL,
+`dt_created` DATETIME NOT NULL,
 `dt_complete` DATETIME,
 `dt_deadline` DATETIME,
 `name` CHAR(255),
@@ -17,16 +17,12 @@ CREATE TABLE `tasks` (
 );
 CREATE TABLE `user` (
 `id` INT AUTO_INCREMENT PRIMARY KEY,
-`dt_registered` DATETIME,
-`email`CHAR(155),
-`name` CHAR(155),
+`dt_registered` DATETIME NOT NULL,
+`email`CHAR(155) NOT NULL,
+`name` CHAR(155) NOT NULL,
 `avatar` CHAR(100),
-`password` CHAR(32),
+`password` CHAR(32) NOT NULL,
 `contants` CHAR(255)
-);
-CREATE TABLE `role` (
-`id` INT AUTO_INCREMENT PRIMARY KEY,
-`anonymous` TINYINT(1)
 );
 CREATE UNIQUE INDEX nameproject ON projects(name);
 CREATE UNIQUE INDEX email ON user(email);
