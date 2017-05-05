@@ -1,6 +1,6 @@
 CREATE DATABASE `thingsarefine`;
 USE `thingsarefine`;
-CREATE TABLE `project` (
+CREATE TABLE `projects` (
 `id` INT AUTO_INCREMENT PRIMARY KEY,
 `name` CHAR(255)
 );
