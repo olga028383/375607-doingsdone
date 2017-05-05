@@ -12,7 +12,7 @@ CREATE TABLE `tasks` (
 `dt_created` DATETIME NOT NULL,
 `dt_complete` DATETIME,
 `dt_deadline` DATETIME,
-`name` CHAR(255),
+`name` CHAR(255) NOT NULL,
 `file` CHAR(255)
 );
 CREATE TABLE `user` (
