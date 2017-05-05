@@ -52,7 +52,7 @@
       $hidden = 'hidden';
       // в зависимости от праметра,сохраненного в куки показываемили скрываем чекбокс,
       //  а так же определяем переменную hidden (скрыть показать задачу)
-      if ($_COOKIE['show_completed']) {
+      if ($templateData['show_completed']) {
           $checked = 'checked';
           $hidden = '';
       }

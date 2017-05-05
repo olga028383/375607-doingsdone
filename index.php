@@ -130,9 +130,14 @@ if (isset($_POST['send'])) {
 //если пришел параметр show_completed создаем куку
 $show_completed = '';
 if (isset($_GET['show_completed'])) {
-    $show_completed = setcookie("show_completed", sanitizeInput($_GET['show_completed']), strtotime("+30 days"));
-    header("Location: /index.php");
-    exit();
+     setcookie('show_completed', sanitizeInput($_GET['show_completed']), strtotime("+30 days"));
+    if(isset($_COOKIE['show_completed'])){
+       $show_completed = $_COOKIE['show_completed']; 
+    }
+      
+    
+    //header("Location: /index.php");
+   // exit();
 }
 ?>
 <!DOCTYPE html>
@@ -154,7 +159,7 @@ if (isset($_GET['show_completed'])) {
         if (!$user) {
             print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
-            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]));
+            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed'=> $show_completed]));
         }
         ?>
       </div>
