@@ -24,9 +24,8 @@ CREATE TABLE `user` (
 `password` CHAR(32) NOT NULL,
 `contants` CHAR(255)
 );
-CREATE UNIQUE INDEX nameproject ON projects(name);
+CREATE UNIQUE INDEX user_name ON projects(user_id, name);
 CREATE UNIQUE INDEX email ON user(email);
-CREATE INDEX name ON tasks(name);
-CREATE INDEX dt_created ON tasks(dt_created);
-CREATE INDEX dt_complete ON tasks(dt_complete);
-CREATE INDEX dt_deadline ON tasks(dt_deadline);
+CREATE INDEX user ON projects(user_id);
+CREATE INDEX user ON tasks(user_id);
+CREATE INDEX project ON tasks(project_id);
