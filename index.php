@@ -127,6 +127,14 @@ if (isset($_POST['send'])) {
         }
     }
 }
+//если пришел параметр show_completed создаем куку
+$show_completed = false;
+if (isset($_GET['show_completed'])) {
+    $show_completed = sanitizeInput($_GET['show_completed']);
+    setcookie('show_completed', $show_completed, strtotime("+30 days"));
+} else if (isset($_COOKIE['show_completed'])) {
+    $show_completed = $_COOKIE['show_completed'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -147,16 +155,16 @@ if (isset($_POST['send'])) {
         if (!$user) {
             print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
         } else {
-            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList]));
+            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
         }
         ?>
       </div>
     </div>
     <?php
-        print includeTemplate('footer.php', ['user' => $user]);
-        if ($modalShow) {
-            print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
-        }
+    print includeTemplate('footer.php', ['user' => $user]);
+    if ($modalShow) {
+        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
+    }
     ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>
