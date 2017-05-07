@@ -9,9 +9,9 @@ INSERT INTO projects(name,user_id) VALUES ('Работа',1);
 INSERT INTO projects(name,user_id) VALUES ('Домашние дела',1);
 INSERT INTO projects(name,user_id) VALUES ('Авто',1);
 /*Таблица задачи*/
-INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (1, 4, CURDATE(), CURDATE()+ INTERVAL 1 DAY, 'Собеседование в IT компании');
-INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (2, 4, CURDATE(), CURDATE()+ INTERVAL 1 MONTH, 'Выполнить тестовое задание');
-INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (3, 3, CURDATE(), CURDATE()+ INTERVAL 10 DAY, 'Сделать задание первого раздела');
-INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (1, 2, CURDATE(), CURDATE()+ INTERVAL 20 DAY, 'Встреча с другом');
-INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (2, 5, CURDATE(), CURDATE()+ INTERVAL 2 DAY, 'Купить корм для кота');
-INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (3, 5, CURDATE(), CURDATE()+ INTERVAL 1 DAY, 'Заказать пиццу');
+INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (1, 3, CURDATE(), CURDATE()+ INTERVAL 1 DAY, 'Собеседование в IT компании');
+INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (2, 3, CURDATE(), CURDATE()+ INTERVAL 1 MONTH, 'Выполнить тестовое задание');
+INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (3, 2, CURDATE(), CURDATE()+ INTERVAL 10 DAY, 'Сделать задание первого раздела');
+INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (1, 1, CURDATE(), CURDATE()+ INTERVAL 20 DAY, 'Встреча с другом');
+INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (2, 4, CURDATE(), CURDATE()+ INTERVAL 2 DAY, 'Купить корм для кота');
+INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (3, 4, CURDATE(), CURDATE()+ INTERVAL 1 DAY, 'Заказать пиццу');
