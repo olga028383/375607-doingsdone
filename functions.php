@@ -6,14 +6,10 @@
  * @return array , значениями которого я вляются 2 массива,
  * 1 - это строка с плайсхолдерами, 2 строка со значениями для них
  */
-function replaceKeyArray($array = [])
+function convertAssocDataToWhereStmt($array = [])
 {
     if (!$array) {
         return;
-    }
-    $newKey = [];
-    foreach ($array as $key => $value) {
-        $newKey[] = $key . ' = ?';
     }
     $result = array_map(function($k) {
         return $k . ' = ?';
@@ -32,8 +28,8 @@ function replaceKeyArray($array = [])
  */
 function updateData($connectDB, $nameTable, $updateData = [], $where = [])
 {
-    $setPoints = replaceKeyArray($updateData);
-    $condition = replaceKeyArray($where);
+    $setPoints = convertAssocDataToWhereStmt($updateData);
+    $condition = convertAssocDataToWhereStmt($where);
 
     $sql = 'UPDATE ' . $nameTable . ' SET ' . $setPoints[0] . ' WHERE ' . $condition[0];
     $value = array_merge($setPoints[1], $condition[1]);
