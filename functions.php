@@ -1,6 +1,108 @@
 <?php
 
 /**
+ * Функция разбивает массив на 2 по ключу и значению
+ * @param  array $array массив для преобразования
+ * @return array , значениями которого я вляются 2 массива,
+ * 1 - это строка с плайсхолдерами, 2 строка со значениями для них
+ */
+function convertAssocDataToWhereStmt($array = [])
+{
+    if (!$array) {
+        return [];
+    }
+    $result = array_map(function($k) {
+        return $k . ' = ?';
+    }, array_keys($array));
+
+    return [implode(", ", $result), array_values($array)];
+}
+
+/**
+ * Функция обновляет данные в базе
+ * @param  boolean $connectDB результат соединения
+ * @param string $nameTable -  имя таблицы
+ * @param array $updateData ассоциативный массив, где ключ имя поля, значание данные для этого поля
+ * @param array $where ассоциативный массив для условия обновления
+ * @return int число обновленных записей и false при ошибке
+ */
+function updateData($connectDB, $nameTable, $updateData = [], $where = [])
+{
+    $setPoints = convertAssocDataToWhereStmt($updateData);
+    $condition = convertAssocDataToWhereStmt($where);
+
+    $sql = 'UPDATE ' . $nameTable . ' SET ' . $setPoints[0] . ' WHERE ' . $condition[0];
+    $value = array_merge($setPoints[1], $condition[1]);
+    $stmt = db_get_prepare_stmt($connectDB, $sql, $value);
+    if ($stmt) {
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        return mysqli_affected_rows($connectDB);
+    }
+    return false;
+}
+
+/**
+ * Функция добавляет данные в базу
+ * @param  boolean $connectDB результат соединения
+ * @param string $sql - sql запрос
+ * @param array $data массив с данными для запроса
+ * @return int последняя добавленная запись и false  при ошибке
+ */
+function setData($connectDB, $sql, $data = [])
+{
+    $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
+    if ($stmt) {
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        return mysqli_insert_id($connectDB);
+    }
+    return false;
+}
+
+/**
+ * Функция получает данные из базы
+ * @param  boolean $connectDB результат соединения
+ * @param string $sql - sql запрос
+ * @param array $data массив с данными для запроса
+ * @return array $theResult  пустой массив или 
+ */
+function getData($connectDB, $sql, $data = [])
+{
+    $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
+    if ($stmt) {
+        mysqli_stmt_execute($stmt);
+
+        $result = mysqli_stmt_get_result($stmt);
+        if (!mysqli_num_rows($result)) {
+            return [];
+        }
+        $theResult = [];
+        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+            $theResult[] = $row;
+        }
+        mysqli_stmt_close($stmt);
+        return $theResult;
+    }
+    return [];
+}
+
+/**
+ * Функция устанавливает соединение с базой данных
+ * @param string $server адрес сервера
+ * @param string $nameUser имя пользователя
+ * @param string $password пароль пользователя б/д
+ * @param string $nameDataBase пароль пользователя б/д
+ * @return mysqli|string соединение если успешно, иначе сообщение об ошибке.
+ */
+function setConnection($server, $nameUser, $password, $nameDataBase)
+{
+    $result = [];
+    $link = mysqli_connect($server, $nameUser, $password, $nameDataBase);
+    return ($link) ? $link : 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
+}
+
+/**
  * Функция находит пользователя по email массиве всех пользователей
  * @param array $users массив пользователей
  * @param string $email  эл. почта

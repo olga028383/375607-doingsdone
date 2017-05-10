@@ -21,7 +21,7 @@ CREATE TABLE `user` (
 `email`CHAR(155) NOT NULL,
 `name` CHAR(155) NOT NULL,
 `avatar` CHAR(100),
-`password` CHAR(32) NOT NULL,
+`password` VARCHAR(525) NOT NULL,
 `contants` CHAR(255)
 );
 CREATE UNIQUE INDEX user_name ON projects(user_id, name);

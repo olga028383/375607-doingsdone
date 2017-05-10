@@ -1,8 +1,22 @@
 <?
 session_start();
 error_reporting(E_ALL);
+require_once 'mysql_helper.php';
 require_once 'functions.php';
 require_once 'userdata.php';
+/* Соединение с б/д */
+$dbConnection = setConnection('localhost', 'mysql', 'mysql', 'thingsarefine');
+if (is_object($dbConnection)) {
+    /* Выполнить запрос и получить данные */
+    $sql = "SELECT name FROM `projects` WHERE user_id = ?";
+    $projects = getData($dbConnection, $sql, [1]);
+    /* Выполнить запрос и добавить данные */
+    $sql = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (?, ?, CURDATE(), CURDATE()+ INTERVAL 1 DAY, ?)";
+    $id = setData($dbConnection, $sql, [3, 4, 'Помыть посуду']);
+    /* Выполнить запрос и обновить данные */
+    $numValue = updateData($dbConnection, 'tasks', ['name' => 'Еще чего-н сделать'], ['id' => 7]);
+}
+
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $taskList = [
     [
