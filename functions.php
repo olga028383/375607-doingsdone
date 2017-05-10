@@ -26,26 +26,26 @@ function replaceKeyArray($array = [])
  * @param  boolean $connectDB результат соединения
  * @param string $nameTable -  имя таблицы
  * @param array $updateData ассоциативный массив, где ключ имя поля, значание данные для этого поля
- * @param array $data ассоциативный массив для условия обновления
+ * @param array $where ассоциативный массив для условия обновления
  * @return int число обновленных записей и false при ошибке
  */
-function updateData($connectDB, $nameTable, $updateData = [], $data = [])
+function updateData($connectDB, $nameTable, $updateData = [], $where = [])
 {
     $setPoints = replaceKeyArray($updateData);
-    $condition = replaceKeyArray($data);
-    
-    $sql = 'UPDATE ' . $nameTable . ' SET ' . $setPoints[0] .' WHERE '. $condition[0];
-    $value = array_merge($setPoints[1],$condition[1]);
-    $stmt = db_get_prepare_stmt($connectDB, $sql,  $value);
-    if($stmt){
-      mysqli_stmt_execute($stmt);
-      return mysqli_affected_rows($connectDB);
-    } 
+    $condition = replaceKeyArray($where);
+
+    $sql = 'UPDATE ' . $nameTable . ' SET ' . $setPoints[0] . ' WHERE ' . $condition[0];
+    $value = array_merge($setPoints[1], $condition[1]);
+    $stmt = db_get_prepare_stmt($connectDB, $sql, $value);
+    if ($stmt) {
+        mysqli_stmt_execute($stmt);
+        return mysqli_affected_rows($connectDB);
+    }
     return false;
 }
 
 /**
- * Функция получает данные из базы
+ * Функция добавляет данные в базу
  * @param  boolean $connectDB результат соединения
  * @param string $sql - sql запрос
  * @param array $data массив с данными для запроса
@@ -85,15 +85,6 @@ function getData($connectDB, $sql, $data = [])
         return $theResult;
     }
     return [];
-    /* $result = $stmt->get_result();
-      if (!$result->num_rows) {
-      return [];
-      }
-      $theResult = [];
-      while ($row = $result->fetch_assoc()) {
-      $theResult[] = $row;
-      }
-      return $theResult; */
 }
 
 /**
@@ -108,15 +99,7 @@ function setConnection($server, $nameUser, $password, $nameDataBase)
 {
     $result = [];
     $link = mysqli_connect($server, $nameUser, $password, $nameDataBase);
-
-    if (!$link) {
-        $result['output'] = false;
-        $result['textError'] = 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
-    } else {
-        $result['output'] = true;
-        $result['resource'] = $link;
-    }
-    return $result;
+    return (!$link) ? 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error() : $link;
 }
 
 /**

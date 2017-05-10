@@ -6,15 +6,15 @@ require_once 'functions.php';
 require_once 'userdata.php';
 /* Соединение с б/д */
 $dbConnection = setConnection('localhost', 'mysql', 'mysql', 'thingsarefine');
-if ($dbConnection['output']) {
+if (is_object($dbConnection)) {
     /* Выполнить запрос и получить данные */
     $sql = "SELECT name FROM `projects` WHERE user_id = ?";
-    $projects = getData($dbConnection['resource'], $sql, [1]);
+    $projects = getData($dbConnection, $sql, [1]);
     /* Выполнить запрос и добавить данные */
     $sql = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (?, ?, CURDATE(), CURDATE()+ INTERVAL 1 DAY, ?)";
-    $id = setData($dbConnection['resource'], $sql, [3, 4, 'Помыть посуду']);
+    $id = setData($dbConnection, $sql, [3, 4, 'Помыть посуду']);
     /* Выполнить запрос и обновить данные */
-    $numValue = updateData($dbConnection['resource'], 'tasks', ['name' => 'Еще чего-н сделать'], ['id'=> 7]);
+    $numValue = updateData($dbConnection, 'tasks', ['name' => 'Еще чего-н сделать'], ['id' => 7]);
 }
 
 $projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
