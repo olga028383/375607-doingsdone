@@ -36,8 +36,8 @@ function updateData($connectDB, $nameTable, $updateData = [], $where = [])
     $stmt = db_get_prepare_stmt($connectDB, $sql, $value);
     if ($stmt) {
         mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
         return mysqli_affected_rows($connectDB);
-        mysqli_stmt_close();
     }
     return false;
 }
@@ -54,8 +54,8 @@ function setData($connectDB, $sql, $data = [])
     $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
     if ($stmt) {
         mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
         return mysqli_insert_id($connectDB);
-        mysqli_stmt_close();
     }
     return false;
 }
@@ -81,8 +81,8 @@ function getData($connectDB, $sql, $data = [])
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             $theResult[] = $row;
         }
+        mysqli_stmt_close($stmt);
         return $theResult;
-        mysqli_stmt_close();
     }
     return [];
 }
