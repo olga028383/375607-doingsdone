@@ -9,7 +9,7 @@
 function convertAssocDataToWhereStmt($array = [])
 {
     if (!$array) {
-        return;
+        return [];
     }
     $result = array_map(function($k) {
         return $k . ' = ?';
