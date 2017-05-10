@@ -99,7 +99,7 @@ function setConnection($server, $nameUser, $password, $nameDataBase)
 {
     $result = [];
     $link = mysqli_connect($server, $nameUser, $password, $nameDataBase);
-    return (!$link) ? 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error() : $link;
+    return ($link) ? $link : 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
 }
 
 /**
