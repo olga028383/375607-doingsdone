@@ -70,7 +70,7 @@
           $showCompletedTasks = '';
           // определяем переменную и показываем в зависимости от параметра куки 
           // только завершенные задачи
-          if ($val['result'] == 'Да') {
+          if (strtotime($val['deadline']) <= time()) {
               $taskCompleted = 'task--completed';
               $showCompletedTasks = $hidden;
           }
@@ -82,7 +82,7 @@
                 <span class="checkbox__text"><?= htmlspecialchars($val['task']); ?></span>
               </label>
             </td>
-            <td class="task__date"><?= htmlspecialchars($val['date']); ?></td>
+            <td class="task__date"><?= htmlspecialchars($val['deadline']); ?></td>
             <td class="task__controls"></td>
           </tr>
       <?php endforeach; ?>

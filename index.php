@@ -6,56 +6,18 @@ require_once 'functions.php';
 require_once 'userdata.php';
 /* Соединение с б/д */
 $dbConnection = setConnection('localhost', 'mysql', 'mysql', 'thingsarefine');
+$taskList = [];
 if (is_object($dbConnection)) {
-    /* Выполнить запрос и получить данные */
-    $sql = "SELECT name FROM `projects` WHERE user_id = ?";
-    $projects = getData($dbConnection, $sql, [1]);
-    /* Выполнить запрос и добавить данные */
-    $sql = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES (?, ?, CURDATE(), CURDATE()+ INTERVAL 1 DAY, ?)";
-    $id = setData($dbConnection, $sql, [3, 4, 'Помыть посуду']);
-    /* Выполнить запрос и обновить данные */
-    $numValue = updateData($dbConnection, 'tasks', ['name' => 'Еще чего-н сделать'], ['id' => 7]);
+    /* Получаем массив пользователей из базы */
+    $sql = "SELECT name FROM `projects` WHERE user_id = 1";
+    $resultProjectSql = getData($dbConnection, $sql, []);
+    $projectList = array_map(function($k) {
+        return $k['name'];
+    }, array_merge([['name' => 'Все']], $resultProjectSql));
+    /* Получаем массив задач из базы */
+    $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project FROM tasks JOIN projects ON tasks.project_id = projects.id";
+    $taskList = getData($dbConnection, $sqlGetTasks, []);
 }
-
-$projectList = ["Все", "Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
-$taskList = [
-    [
-        "task" => "Собеседование в IT компании",
-        "date" => "01.06.2017",
-        "project" => "Работа",
-        "result" => "Нет"
-    ],
-    [
-        "task" => "Выполнить тестовое задание",
-        "date" => "25.05.2017",
-        "project" => "Работа",
-        "result" => "Нет"
-    ],
-    [
-        "task" => "Сделать задание первого раздела",
-        "date" => "21.04.2017",
-        "project" => "Учеба",
-        "result" => "Да"
-    ],
-    [
-        "task" => "Встреча с другом",
-        "date" => "22.04.2017",
-        "project" => "Входящие",
-        "result" => "Нет"
-    ],
-    [
-        "task" => "Купить корм для кота",
-        "date" => "Нет",
-        "project" => "Домашние дела",
-        "result" => "Нет"
-    ],
-    [
-        "task" => "Заказать пиццу",
-        "date" => "Нет",
-        "project" => "Домашние дела",
-        "result" => "Нет"
-    ]
-];
 
 $user = [];
 $bodyClassOverlay = '';
