@@ -1,6 +1,73 @@
 <?php
 
 /**
+ * Функция получает проекты
+ * @param  boolean $dbConnection результат соединения
+ * @return array массив проектов из базы и добаляет первым ключем значение "Все"
+ */
+function getProjects($dbConnection)
+{
+    $sql = "SELECT name FROM `projects` WHERE user_id = 1";
+    return array_map(function($k) {
+        return $k['name'];
+    }, array_merge([['name' => 'Все']], getData($dbConnection, $sql, [])));
+}
+
+/**
+ * Функция получает задачи и имена проектов
+ * @param  boolean $dbConnection результат соединения
+ * @return array массив задач и проектов
+ */
+function getTasksByProject($dbConnection)
+{
+    $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project FROM tasks JOIN projects ON tasks.project_id = projects.id";
+    return getData($dbConnection, $sqlGetTasks, []);
+}
+
+/**
+ * Функция получает пользователей из базы
+ * @param  boolean $dbConnection результат соединения
+ * @return array массив всех пользователей
+ */
+function getUsers($dbConnection)
+{
+    $sqlGetusers = "SELECT name, email, password FROM `user`";
+    return getData($dbConnection, $sqlGetusers, []);
+}
+
+/**
+ * Функция добавляет пользователей в базу
+ * @param  boolean $dbConnection результат соединения
+ * @param  array $resultRegister валидные и не валидные поля
+ */
+function addUserToDatabase($dbConnection, $resultRegister)
+{
+    $sqlAddUser = "INSERT INTO user(registered, email, name, password) VALUES (CURDATE(), ?, ?, ?)";
+    setData($dbConnection, $sqlAddUser, [
+        $resultRegister['output']['valid']['email'],
+        $resultRegister['output']['valid']['name'],
+        password_hash($resultRegister['output']['valid']['password'], PASSWORD_DEFAULT)]);
+}
+
+/**
+ * Функция добавляет задачу в базу
+ * @param  boolean $dbConnection результат соединения
+ * @param  array $resultRegister валидные и не валидные поля
+ * @param  array $file  путь к файлу если передан
+ */
+/*ВОт здесь неправильно как-то файл передается*/
+function addTaskToDatabase($dbConnection, $resultRegister, $file)
+{
+    $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
+    $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
+    $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
+    $userIdLast = setData($dbConnection, $sqlAddTask, [
+        $idProject[0]['id'],
+        $resultAddTask['valid']['deadline'],
+        $resultAddTask['valid']['task']]);
+}
+
+/**
  * Функция разбивает массив на 2 по ключу и значению
  * @param  array $array массив для преобразования
  * @return array , значениями которого я вляются 2 массива,

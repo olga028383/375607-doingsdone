@@ -14,17 +14,12 @@ $messageAfterRegistered = false;
 $dbConnection = setConnection('localhost', 'mysql', 'mysql', 'thingsarefine');
 $taskList = [];
 if (is_object($dbConnection)) {
-    /* Получаем массив пользователей из базы */
-    $sql = "SELECT name FROM `projects` WHERE user_id = 1";
-    $projectList = array_map(function($k) {
-        return $k['name'];
-    }, array_merge([['name' => 'Все']], getData($dbConnection, $sql, [])));
+    /* Получаем массив проектов из базы данных, и добавляет 1 значение "Все" */
+    $projectList = getProjects($dbConnection);
     /* Получаем массив задач из базы */
-    $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project FROM tasks JOIN projects ON tasks.project_id = projects.id";
-    $taskList = getData($dbConnection, $sqlGetTasks, []);
+    $taskList = getTasksByProject($dbConnection);
     /* Получаем пользователей из базы */
-    $sqlGetusers = "SELECT name, email, password FROM `user`";
-    $users = getData($dbConnection, $sqlGetusers, []);
+    $users = getUsers($dbConnection);
 }
 
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
@@ -37,11 +32,8 @@ if (isset($_POST['register'])) {
     $resultRegister = validateLoginForm($users, ['email', 'name', 'password']);
 
     if (!$resultRegister['error']) {
-        $sqlAddUser = "INSERT INTO user(registered, email, name, password) VALUES (CURDATE(), ?, ?, ?)";
-        $userIdLast = setData($dbConnection, $sqlAddUser, [
-            $resultRegister['output']['valid']['email'],
-            $resultRegister['output']['valid']['name'],
-            password_hash($resultRegister['output']['valid']['password'], PASSWORD_DEFAULT)]);
+        /*Функция добавляет пользователя в базу*/
+        addUserToDatabase($dbConnection, $resultRegister);
         header("Location: /index.php?login=message");
         exit();
     }
@@ -118,14 +110,8 @@ if (isset($_POST['send'])) {
                 move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
             }
         }
-        $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
-        $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
-        $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
-        $userIdLast = setData($dbConnection, $sqlAddTask, [
-            $idProject[0]['id'],
-            $resultAddTask['valid']['deadline'],
-            $resultAddTask['valid']['task'] ]);
-        
+        /*Функция добавляет задачу в базу*/
+        addTaskToDatabase($dbConnection, $resultAddTask, $file);
         $bodyClassOverlay = '';
         $modalShow = false;
     }
