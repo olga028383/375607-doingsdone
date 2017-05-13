@@ -1,3 +1,10 @@
+<?php
+/**
+ * Шаблон принимает массив параметров,
+ * array $templateData['errors'] содержит массив ошибок для каждого поля,
+ * array $templateData['valid'] содержит массив заполненных полей
+ */
+?>
 <div class="content">
   <section class="content__side">
     <p class="content__side-info">Если у вас уже есть аккаунт, авторизуйтесь на сайте</p>

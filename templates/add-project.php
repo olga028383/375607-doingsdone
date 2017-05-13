@@ -2,8 +2,8 @@
 /**
  * Шаблон принимает массив параметров,
  * array $templateData['errors'] содержит массив ошибок для каждого поля,
- * array $templateData['allTasks'] массив состоящий из полного списка задач,для формирования выподающего списка
- * array $templateData['newTasks'] значания заполненных полей
+ * array $templateData['valid'] массив валидных полей
+ * array $templateData['projects'] массив проектов для поля select
  */
 
 /**
@@ -51,6 +51,7 @@ function getFormValue($templateData, $name)
       <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
         <?php
         $selectedValue = getFormValue($templateData, 'project');
+        /*Удаляю значение ключа Все*/
         array_shift($templateData['projects']);
         $allOptions = array_merge([0 => 'Выберите проект'], array_combine($templateData['projects'], $templateData['projects']));
         foreach ($allOptions as $value => $option) {
