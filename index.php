@@ -3,37 +3,70 @@ session_start();
 error_reporting(E_ALL);
 require_once 'mysql_helper.php';
 require_once 'functions.php';
-require_once 'userdata.php';
+/*Инициализация переменных*/
+$user = [];
+$bodyClassOverlay = '';
+$modalShow = false;
+$showAuthenticationForm = false;
+$showPageRegister = false;
+$messageAfterRegistered = false;
 /* Соединение с б/д */
 $dbConnection = setConnection('localhost', 'mysql', 'mysql', 'thingsarefine');
 $taskList = [];
 if (is_object($dbConnection)) {
     /* Получаем массив пользователей из базы */
     $sql = "SELECT name FROM `projects` WHERE user_id = 1";
-    $resultProjectSql = getData($dbConnection, $sql, []);
     $projectList = array_map(function($k) {
         return $k['name'];
-    }, array_merge([['name' => 'Все']], $resultProjectSql));
+    }, array_merge([['name' => 'Все']], getData($dbConnection, $sql, [])));
     /* Получаем массив задач из базы */
     $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project FROM tasks JOIN projects ON tasks.project_id = projects.id";
     $taskList = getData($dbConnection, $sqlGetTasks, []);
+    /* Получаем пользователей из базы */
+    $sqlGetusers = "SELECT name, email, password FROM `user`";
+    $users = getData($dbConnection, $sqlGetusers, []);
 }
 
-$user = [];
-$bodyClassOverlay = '';
-$modalShow = false;
-$showAuthenticationForm = false;
+//проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
+if (isset($_GET['register']) || isset($_POST['register'])) {
+    $showPageRegister = true;
+}
+$dataForRegisterTemplate = AddkeysForValidation(['email', 'name', 'password']);
+if (isset($_POST['register'])) {
+
+    $resultRegister = validateLoginForm($users, ['email', 'name', 'password']);
+
+    if (!$resultRegister['error']) {
+        $sqlAddUser = "INSERT INTO user(registered, email, name, password) VALUES (CURDATE(), ?, ?, ?)";
+        $userIdLast = setData($dbConnection, $sqlAddUser, [
+            $resultRegister['output']['valid']['email'],
+            $resultRegister['output']['valid']['name'],
+            password_hash($resultRegister['output']['valid']['password'], PASSWORD_DEFAULT)]);
+        header("Location: /index.php?login=message");
+        exit();
+    }
+    if ($resultRegister['user']) {
+        $resultRegister['output']['user'] = $resultRegister['user'];
+        $dataForRegisterTemplate = $resultRegister['output'];
+    } else {
+        $resultRegister['output']['user'] = null;
+        $dataForRegisterTemplate = $resultRegister['output'];
+    }
+}
+
 // Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
 if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
+    /*if($_GET['login'] == 'message'){
+        $messageAfterRegistered = true;
+    }*/
     $bodyClassOverlay = 'overlay';
     $showAuthenticationForm = true;
+
 }
-
 $dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
-
 if (isset($_POST['sendAuth'])) {
 
-    $resultAuth = validateLoginForm($users);
+    $resultAuth = validateLoginForm($users, ['email', 'password']);
 
     if (!$resultAuth['error']) {
         if (password_verify($_POST['password'], $resultAuth['user']['password'])) {
@@ -44,17 +77,13 @@ if (isset($_POST['sendAuth'])) {
             $resultAuth['output']['errors']['password'] = true;
         }
     }
-    $dataForHeaderTemplate = $resultAuth['output'];
+ 
+    $dataForHeaderTemplate = $resultAuth['output']; 
 }
 
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
 $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
 
-// Если пришёл get-параметр add, то покажем форму добавления проекта
-if (isset($_GET['add']) || isset($_POST['send'])) {
-    $bodyClassOverlay = 'overlay';
-    $modalShow = true;
-}
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
@@ -72,36 +101,35 @@ if (isset($_GET['project'])) {
 } else {
     $tasksToDisplay = $taskList;
 }
-
-$expectedFields = ['task', 'project', 'date'];
-// Инициализируем все ожидаемые поля в $newTask, и сбрасываем $errors в false для каждого поля
-$newTask = ['result' => 'Нет'];
-$errors = [];
-foreach ($expectedFields as $field) {
-    $newTask[$field] = '';
-    $errors[$field] = false;
+$dataFormAddTask = AddkeysForValidation(['task', 'project', 'deadline']);
+// Если пришёл get-параметр add, то покажем форму добавления проекта
+if (isset($_GET['add']) || isset($_POST['send'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShow = true;
 }
 if (isset($_POST['send'])) {
-    $errorsFound = false;
-    foreach ($expectedFields as $name) {
-        if (!empty($_POST[$name])) {
-            $newTask[$name] = sanitizeInput($_POST[$name]);
-        } else {
-            $errors[$name] = true;
-            $errorsFound = true;
+    $resultAddTask = validateLoginForm(null, ['task', 'project', 'deadline']);
+    if (!$resultAddTask['error']) {
+        
+        $file= null;
+        if (isset($_FILES['preview'])) {
+            $file = $_FILES['preview'];
+            if (is_uploaded_file($file['tmp_name'])) {
+                move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+            }
         }
-    }
-    if (!$errorsFound) {
-        array_unshift($tasksToDisplay, $newTask);
+        $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
+        $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
+        $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
+        $userIdLast = setData($dbConnection, $sqlAddTask, [
+            $idProject[0]['id'],
+            $resultAddTask['valid']['deadline'],
+            $resultAddTask['valid']['task'] ]);
+        
         $bodyClassOverlay = '';
         $modalShow = false;
     }
-    if (isset($_FILES['preview'])) {
-        $file = $_FILES['preview'];
-        if (is_uploaded_file($file['tmp_name'])) {
-            move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
-        }
-    }
+    $dataFormAddTask  = $resultAddTask; 
 }
 //если пришел параметр show_completed создаем куку
 $show_completed = false;
@@ -128,10 +156,14 @@ if (isset($_GET['show_completed'])) {
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', ['user' => $user]); ?>
         <?php
-        if (!$user) {
-            print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm]));
+        if ($showPageRegister) {
+            print(includeTemplate('register.php', $dataForRegisterTemplate));
         } else {
-            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
+            if (!$user) {
+                print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]));
+            } else {
+                print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
+            }
         }
         ?>
       </div>
@@ -139,7 +171,7 @@ if (isset($_GET['show_completed'])) {
     <?php
     print includeTemplate('footer.php', ['user' => $user]);
     if ($modalShow) {
-        print(includeTemplate('add-project.php', ['errors' => $errors, 'projects' => $projectList, 'newTask' => $newTask]));
+        print(includeTemplate('add-project.php', $dataFormAddTask + ['projects' => $projectList ]));
     }
     ?>
     <script type="text/javascript" src="js/script.js"></script>

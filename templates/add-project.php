@@ -14,16 +14,17 @@
  * @return string
  */
 function getFormValue($templateData, $name)
-{
+{   
     if ($name == 'project') {
         $result = 'Выберите проект';
-        if ($templateData['newTask']['project']) {
-            $result = $templateData['newTask']['project'];
+         var_dump($templateData['project']);
+        if ($templateData['project']) {
+            $result = $templateData['project'];
         }
         return $result;
     }
     // Для остальных полей берем просто что пришло в посте
-    return $templateData['newTask'][$name];
+    return $templateData['valid'][$name];
 }
 ?>
 <div class="modal">
@@ -35,15 +36,22 @@ function getFormValue($templateData, $name)
     <div class="form__row">
       <label class="form__label" for="task">Название <sup>*</sup></label>
       <?= addRequiredSpan($templateData['errors'], 'task'); ?>
-      <input class="form__input <?= setClassError($templateData['errors'], 'task'); ?>" type="text" name="task" id="name" value="<?= getFormValue($templateData, 'task'); ?>" placeholder="Введите название">
+      <input class="form__input <?= setClassError($templateData['errors'], 'task'); ?>"
+             type="text"
+             name="task" 
+             id="name" 
+             value="<?= getFormValue($templateData, 'task');?>" 
+             placeholder="Введите название">
     </div>
 
     <div class="form__row">
       <label class="form__label" for="project">Проект <sup>*</sup></label>
       <?= addRequiredSpan($templateData['errors'], 'project'); ?>
+
       <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
         <?php
         $selectedValue = getFormValue($templateData, 'project');
+        array_shift($templateData['projects']);
         $allOptions = array_merge([0 => 'Выберите проект'], array_combine($templateData['projects'], $templateData['projects']));
         foreach ($allOptions as $value => $option) {
             $selected = $option == $selectedValue ? 'selected' : '';
@@ -55,8 +63,13 @@ function getFormValue($templateData, $name)
 
     <div class="form__row">
       <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
-      <?= addRequiredSpan($templateData['errors'], 'date'); ?>
-      <input class="form__input form__input--date <?= setClassError($templateData['errors'], 'date'); ?>" type="text" name="date" id="date" value="<?= $templateData['newTask']['date']; ?>" placeholder="Введите дату в формате ДД.ММ.ГГГГ">
+      <?= addRequiredSpan($templateData['errors'], 'deadline'); ?>
+      <input class="form__input form__input--date <?= setClassError($templateData['errors'], 'deadline'); ?>" 
+             type="text" 
+             name="deadline" 
+             id="deadline" 
+             value="<?= getFormValue($templateData, 'deadline');?>" 
+             placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
     <div class="form__row">

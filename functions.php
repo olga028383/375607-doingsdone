@@ -123,7 +123,9 @@ function searchUserByEmail($email, $users)
 /**
  * Функция проверяет наличие заполненных полей и записывет значение в массив валидации,
  * если проверка на ауторизацию , то так же проверяет переданный email на наличие в массиве c пользователями
- * @param array $users  массив пользователей
+ * @param array $users  массив пользователей,
+ * @param array $fields  поля которые требуется проверять на валидность
+ * @param bool $register меняем условия валидации в зависимости от того регистрация это или ауторизация
  * @return array[
  *      'error'=>bool,
  *      'output' => array[
@@ -132,21 +134,31 @@ function searchUserByEmail($email, $users)
  *      ]
  *      'user' => array
  */
-function validateLoginForm($users)
+function validateLoginForm($users, $fields)
 {
     $errors = false;
+    $validateEmail = true;
     $user = null;
-    $fields = ['email', 'password'];
     $output = AddkeysForValidation($fields);
+    if ($users) {
+        $user = searchUserByEmail($_POST['email'], $users);
+        $validateEmail = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+    } else {
+        $validateEmail = strtotime($_POST['deadline']) !== FALSE;
+    }
     foreach ($fields as $name) {
-        if (!empty($_POST[$name]) && $user = searchUserByEmail($_POST['email'], $users)) {
+        if (!empty($_POST[$name]) && $validateEmail) {
             $output['valid'][$name] = sanitizeInput($_POST[$name]);
         } else {
             $output['errors'][$name] = true;
             $errors = true;
         }
     }
-    return ['error' => $errors, 'output' => $output, 'user' => $user];
+    if ($users) {
+        return ['error' => $errors, 'output' => $output, 'user' => $user];
+    } else {
+        return ['error' => $errors, 'valid' => $output['valid'], 'errors' => $output['errors']];
+    }
 }
 
 /**
@@ -173,7 +185,7 @@ function addRequiredSpan($errors, $name, $text = '')
 {
     if ($errors[$name]) {
         if ($text) {
-            print("<p class='form__message'>$text</span>");
+            print("<p class='form__message'>$text</p>");
         } else {
             print("<span>Обязательное поле</span>");
         }

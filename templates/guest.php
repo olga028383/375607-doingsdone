@@ -6,11 +6,14 @@
  * bool $templateData['showAuthenticationForm']
  */
 $showModalAuth = '';
+$messageAfterRegistered = '';
 if (!$templateData['showAuthenticationForm']) {
     $showModalAuth = 'hidden';
 }
+if ($templateData['messageAfterRegistered']) {
+    $messageAfterRegistered = "<div style='margin-bottom: 20px; text-align: center'>Теперь вы можете войти, используя свой email и пароль</div>";
+}
 ?>
-
 
 <div class="content">
   <section class="welcome">
@@ -22,7 +25,7 @@ if (!$templateData['showAuthenticationForm']) {
       <p>После создания аккаунта, пользователь может начать вносить свои дела, деля их по проектам и указывая сроки.</p>
     </div>
 
-    <a class="welcome__button button" href="#">Зарегистрироваться</a>
+    <a class="welcome__button button" href="/index.php?register">Зарегистрироваться</a>
   </section>
 </div>
 
@@ -30,7 +33,7 @@ if (!$templateData['showAuthenticationForm']) {
   <a href="/" class="modal__close" name="button">Закрыть</a>
 
   <h2 class="modal__heading">Вход на сайт</h2>
-
+  <?= $messageAfterRegistered; ?>
   <form class="form" class="" action="index.php" method="post">
     <div class="form__row">
       <label class="form__label" for="email">E-mail <sup>*</sup></label>
