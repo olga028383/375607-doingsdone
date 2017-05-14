@@ -14,10 +14,9 @@
  * @return string
  */
 function getFormValue($templateData, $name)
-{   
+{
     if ($name == 'project') {
         $result = 'Выберите проект';
-         var_dump($templateData['project']);
         if ($templateData['project']) {
             $result = $templateData['project'];
         }
@@ -35,23 +34,23 @@ function getFormValue($templateData, $name)
   <form class="form" class="" action="/index.php" method="post" enctype="multipart/form-data">
     <div class="form__row">
       <label class="form__label" for="task">Название <sup>*</sup></label>
-      <?= addRequiredSpan($templateData['errors'], 'task'); ?>
+<?= addRequiredSpan($templateData['errors'], 'task'); ?>
       <input class="form__input <?= setClassError($templateData['errors'], 'task'); ?>"
              type="text"
              name="task" 
              id="name" 
-             value="<?= getFormValue($templateData, 'task');?>" 
+             value="<?= getFormValue($templateData, 'task'); ?>" 
              placeholder="Введите название">
     </div>
 
     <div class="form__row">
       <label class="form__label" for="project">Проект <sup>*</sup></label>
-      <?= addRequiredSpan($templateData['errors'], 'project'); ?>
+<?= addRequiredSpan($templateData['errors'], 'project'); ?>
 
       <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
         <?php
         $selectedValue = getFormValue($templateData, 'project');
-        /*Удаляю значение ключа Все*/
+        /* Удаляю значение ключа Все */
         array_shift($templateData['projects']);
         $allOptions = array_merge([0 => 'Выберите проект'], array_combine($templateData['projects'], $templateData['projects']));
         foreach ($allOptions as $value => $option) {
@@ -64,12 +63,12 @@ function getFormValue($templateData, $name)
 
     <div class="form__row">
       <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
-      <?= addRequiredSpan($templateData['errors'], 'deadline'); ?>
+<?= addRequiredSpan($templateData['errors'], 'deadline'); ?>
       <input class="form__input form__input--date <?= setClassError($templateData['errors'], 'deadline'); ?>" 
              type="text" 
              name="deadline" 
              id="deadline" 
-             value="<?= getFormValue($templateData, 'deadline');?>" 
+             value="<?= getFormValue($templateData, 'deadline'); ?>" 
              placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 

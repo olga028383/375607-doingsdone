@@ -3,36 +3,30 @@
 /**
  * Функция получает проекты
  * @param  boolean $dbConnection результат соединения
- * @return array массив проектов из базы и добаляет первым ключем значение "Все"
+ * @param  array $user массив с данными о пользователе
+ * @return array массив проектов из базы, соответствующий авторизованному пользователю
  */
-function getProjects($dbConnection)
+function getProjects($dbConnection, $user)
 {
-    $sql = "SELECT name FROM `projects` WHERE user_id = 1";
+    $sql = "SELECT name FROM `projects` WHERE user_id = ?";
     return array_map(function($k) {
         return $k['name'];
-    }, array_merge([['name' => 'Все']], getData($dbConnection, $sql, [])));
+    }, getData($dbConnection, $sql, [$user['id']]));
 }
 
 /**
  * Функция получает задачи и имена проектов
  * @param  boolean $dbConnection результат соединения
- * @return array массив задач и проектов
+ * @return array массив задач и проектов, соответствующих авторизованному пользователю
  */
-function getTasksByProject($dbConnection)
+function getTasksByProject($dbConnection, $user)
 {
-    $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project FROM tasks JOIN projects ON tasks.project_id = projects.id";
-    return getData($dbConnection, $sqlGetTasks, []);
-}
-
-/**
- * Функция получает пользователей из базы
- * @param  boolean $dbConnection результат соединения
- * @return array массив всех пользователей
- */
-function getUsers($dbConnection)
-{
-    $sqlGetusers = "SELECT name, email, password FROM `user`";
-    return getData($dbConnection, $sqlGetusers, []);
+    $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project "
+            . "FROM tasks "
+            . "JOIN projects "
+            . "ON tasks.project_id = projects.id "
+            . "AND tasks.user_id = ?";
+    return getData($dbConnection, $sqlGetTasks, [$user['id']]);
 }
 
 /**
@@ -55,7 +49,7 @@ function addUserToDatabase($dbConnection, $resultRegister)
  * @param  array $resultRegister валидные и не валидные поля
  * @param  array $file  путь к файлу если передан
  */
-/*ВОт здесь неправильно как-то файл передается*/
+/* ВОт здесь неправильно как-то файл передается */
 function addTaskToDatabase($dbConnection, $resultRegister, $file)
 {
     $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
@@ -170,21 +164,15 @@ function setConnection($server, $nameUser, $password, $nameDataBase)
 }
 
 /**
- * Функция находит пользователя по email массиве всех пользователей
- * @param array $users массив пользователей
- * @param string $email  эл. почта
- * @return $user если пользоваетель существует или null 
+ * Функция находит пользователя по email в базе данных
+ * @param array $dbConnection соединение с базой данных
+ * @param string email электронная почта
+ * @return array $user если пользоваетель существует или null 
  */
-function searchUserByEmail($email, $users)
+function searchUserByEmail($email, $dbConnection)
 {
-    $result = null;
-    foreach ($users as $user) {
-        if ($user['email'] == $email) {
-            $result = $user;
-            break;
-        }
-    }
-    return $result;
+    $sql = "SELECT id, email, password, name FROM user WHERE email = ?";
+    return getData($dbConnection, $sql, [$email]);
 }
 
 /**
@@ -201,14 +189,14 @@ function searchUserByEmail($email, $users)
  *      ]
  *      'user' => array
  */
-function validateLoginForm($users, $fields)
+function validateLoginForm($dbConnection, $fields)
 {
     $errors = false;
     $validateEmail = true;
     $user = null;
     $output = AddkeysForValidation($fields);
-    if ($users) {
-        $user = searchUserByEmail($_POST['email'], $users);
+    if ($dbConnection) {
+        $user = searchUserByEmail($_POST['email'], $dbConnection);
         $validateEmail = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
     } else {
         $validateEmail = strtotime($_POST['deadline']) !== FALSE;
@@ -221,7 +209,7 @@ function validateLoginForm($users, $fields)
             $errors = true;
         }
     }
-    if ($users) {
+    if ($dbConnection) {
         return ['error' => $errors, 'output' => $output, 'user' => $user];
     } else {
         return ['error' => $errors, 'valid' => $output['valid'], 'errors' => $output['errors']];

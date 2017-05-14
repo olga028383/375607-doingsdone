@@ -14,7 +14,9 @@
       <ul class="main-navigation__list">
         <?php
         $keyToHightlight = !empty($_GET['project']) ? $_GET['project'] : 0;
-        foreach ($templateData['projects'] as $key => $val):
+        /* Добавляем значение 'все' первым индексом в список задач */
+        $newIndexToArrayProjects = array_merge(['Все'], $templateData['projects']);
+        foreach ($newIndexToArrayProjects as $key => $val):
             $activeClass = '';
             if ($key == $keyToHightlight) {
                 $activeClass = "main-navigation__list-item--active";
@@ -78,7 +80,7 @@
           <tr class="tasks__item task <?= $taskCompleted; ?>" <?= $showCompletedTasks; ?> >
             <td class="task__select">
               <label class="checkbox task__checkbox">
-                <input class="checkbox__input visually-hidden" type="checkbox" checked>
+                <input class="checkbox__input visually-hidden" type="checkbox"  >
                 <span class="checkbox__text"><?= htmlspecialchars($val['task']); ?></span>
               </label>
             </td>
