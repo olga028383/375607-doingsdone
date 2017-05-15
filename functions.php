@@ -55,7 +55,7 @@ function addTaskToDatabase($dbConnection, $resultRegister, $file)
     $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
     $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
-    $userIdLast = setData($dbConnection, $sqlAddTask, [
+    setData($dbConnection, $sqlAddTask, [
         $idProject[0]['id'],
         $resultAddTask['valid']['deadline'],
         $resultAddTask['valid']['task']]);
@@ -177,10 +177,8 @@ function searchUserByEmail($email, $dbConnection)
 
 /**
  * Функция проверяет наличие заполненных полей и записывет значение в массив валидации,
- * если проверка на ауторизацию , то так же проверяет переданный email на наличие в массиве c пользователями
- * @param array $users  массив пользователей,
  * @param array $fields  поля которые требуется проверять на валидность
- * @param bool $register меняем условия валидации в зависимости от того регистрация это или ауторизация
+ * @param array $dbConnection соединение с б/д
  * @return array[
  *      'error'=>bool,
  *      'output' => array[
@@ -192,15 +190,10 @@ function searchUserByEmail($email, $dbConnection)
 function validateLoginForm($dbConnection, $fields)
 {
     $errors = false;
-    $validateEmail = true;
     $user = null;
     $output = AddkeysForValidation($fields);
-    if ($dbConnection) {
-        $user = searchUserByEmail($_POST['email'], $dbConnection);
-        $validateEmail = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-    } else {
-        $validateEmail = strtotime($_POST['deadline']) !== FALSE;
-    }
+    $user = searchUserByEmail($_POST['email'], $dbConnection);
+    $validateEmail = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
     foreach ($fields as $name) {
         if (!empty($_POST[$name]) && $validateEmail) {
             $output['valid'][$name] = sanitizeInput($_POST[$name]);
@@ -209,11 +202,31 @@ function validateLoginForm($dbConnection, $fields)
             $errors = true;
         }
     }
-    if ($dbConnection) {
-        return ['error' => $errors, 'output' => $output, 'user' => $user];
-    } else {
-        return ['error' => $errors, 'valid' => $output['valid'], 'errors' => $output['errors']];
+    return ['error' => $errors, 'output' => $output, 'user' => $user];
+}
+
+/**
+ * Функция проверяет наличие заполненных полей и записывет значение в массив валидации
+ * @param array $fields  поля которые требуется проверять на валидность
+ * @return array[
+ *      'error'=>bool,
+ *      'valid' => array,
+ *      'errors' => array
+ */
+function validateTaskForm($fields)
+{
+    $errors = false;
+    $output = AddkeysForValidation($fields);
+    $validateEmail = strtotime($_POST['deadline']) !== FALSE;
+    foreach ($fields as $name) {
+        if (!empty($_POST[$name]) && $validateEmail) {
+            $output['valid'][$name] = sanitizeInput($_POST[$name]);
+        } else {
+            $output['errors'][$name] = true;
+            $errors = true;
+        }
     }
+    return ['error' => $errors, 'valid' => $output['valid'], 'errors' => $output['errors']];
 }
 
 /**
