@@ -73,6 +73,9 @@ if (is_object($dbConnection) && $user) {
     $projectList = getProjects($dbConnection, $user);
     /* Получаем массив задач из базы */
     $taskList = getTasksByProject($dbConnection, $user);
+}else{
+    header("HTTP/1.0 404 Not Found");
+    exit();
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
