@@ -50,8 +50,6 @@ function getFormValue($templateData, $name)
       <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
         <?php
         $selectedValue = getFormValue($templateData, 'project');
-        /* Удаляю значение ключа Все */
-        array_shift($templateData['projects']);
         $allOptions = array_merge([0 => 'Выберите проект'], array_combine($templateData['projects'], $templateData['projects']));
         foreach ($allOptions as $value => $option) {
             $selected = $option == $selectedValue ? 'selected' : '';
