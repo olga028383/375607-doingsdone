@@ -14,8 +14,10 @@
       <ul class="main-navigation__list">
         <?php
         $keyToHightlight = !empty($_GET['project']) ? $_GET['project'] : 0;
-        /* Добавляем значение 'все' первым индексом в список задач */
-        $newIndexToArrayProjects = array_merge(['Все'], $templateData['projects']);
+        /* Добавляем значение 'все' первым индексом в список задач выбираем только ключи с названием задачи*/
+        $newIndexToArrayProjects = array_merge( ['Все'] , array_map(function($k){
+            return $k['name'];
+        }, $templateData['projects']));
         foreach ($newIndexToArrayProjects as $key => $val):
             $activeClass = '';
             if ($key == $keyToHightlight) {

@@ -104,9 +104,10 @@ if (isset($_POST['send'])) {
         if (isset($_FILES['preview'])) {
             $file = $_FILES['preview'];
             if (is_uploaded_file($file['tmp_name'])) {
-                move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+               move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
             }
         }
+       
         /* Функция добавляет задачу в базу */
         addTaskToDatabase($dbConnection, $resultAddTask, $file);
         $bodyClassOverlay = '';

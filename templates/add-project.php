@@ -15,10 +15,11 @@
  */
 function getFormValue($templateData, $name)
 {
-    if ($name == 'project') {
-        $result = 'Выберите проект';
-        if ($templateData['project']) {
-            $result = $templateData['project'];
+   if ($name == 'project') {
+        $result = '0';
+        if ($templateData['valid']['project']) {
+            $result = $templateData['valid']['project'];
+            
         }
         return $result;
     }
@@ -50,10 +51,10 @@ function getFormValue($templateData, $name)
       <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
         <?php
         $selectedValue = getFormValue($templateData, 'project');
-        $allOptions = array_merge([0 => 'Выберите проект'], array_combine($templateData['projects'], $templateData['projects']));
+        $allOptions = array_merge([['id' =>0,'name' =>'Выберите проект']], $templateData['projects']);
         foreach ($allOptions as $value => $option) {
-            $selected = $option == $selectedValue ? 'selected' : '';
-            echo '<option value="' . $value . '" ' . $selected . '>' . $option . '</option>';
+            $selected = $option['id'] == $selectedValue ? 'selected' : '';
+            echo '<option value="' . $option['id'] . '" ' . $selected . '>' . $option['name'] . '</option>';
         }
         ?>
       </select>

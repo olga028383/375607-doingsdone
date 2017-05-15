@@ -30,12 +30,9 @@ function checkForDateCorrected($str)
  */
 function getProjects($dbConnection, $user)
 {
-    $sql = "SELECT name FROM `projects` WHERE user_id = ?";
-    return array_map(function($k) {
-        return $k['name'];
-    }, getData($dbConnection, $sql, [$user['id']]));
+    $sql = "SELECT id, name FROM `projects` WHERE user_id = ?";
+    return getData($dbConnection, $sql, [$user['id']]);
 }
-
 /**
  * Функция получает задачи и имена проектов
  * @param  boolean $dbConnection результат соединения
@@ -74,7 +71,6 @@ function addUserToDatabase($dbConnection, $resultRegister)
 /* ВОт здесь неправильно как-то файл передается */
 function addTaskToDatabase($dbConnection, $resultAddTask, $file)
 {
-    var_dump($resultAddTask);
     $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
     /* $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
       $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
@@ -240,9 +236,13 @@ function validateTaskForm($fields)
 {
     $errors = false;
     $output = AddkeysForValidation($fields);
-    $validateEmail = checkForDateCorrected($_POST['deadline']) !== FALSE;
     foreach ($fields as $name) {
-        if (!empty($_POST[$name]) && $validateEmail) {
+        if($name == $_POST['deadline'] && checkForDateCorrected($_POST['deadline'])){
+            $output['valid']['deadline'] = checkForDateCorrected($_POST['deadline']);
+        }else{
+           $output['errors']['deadline'] = true;
+        }
+        if (!empty($_POST[$name])) {
             $output['valid'][$name] = sanitizeInput($_POST[$name]);
         } else {
             $output['errors'][$name] = true;
