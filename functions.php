@@ -1,6 +1,28 @@
 <?php
 
 /**
+ * Функция проверяет корректность даты заполняемой пользователем
+ * @param  string $str введенная дата
+ * @return time() или false
+ */
+function checkForDateCorrected($str)
+{
+    $translate = [
+        'Сегодня' => strtotime('Today'),
+        'Завтра' => strtotime('Tomorrow'),
+        'Послезавтра' => time()+ 172800,
+        'Понедельник' => strtotime('Monday'),
+        'Вторник' => strtotime('Tuesday'),
+        'Среда' => strtotime('Wednesday'),
+        'Четверг' => strtotime('Thursday'),
+        'Пятница' => strtotime('Friday'),
+        'Суббота' => strtotime('Saturday'),
+        'Воскресенье' => strtotime('Sunday')
+    ];
+    
+  return $translate[$str];
+}
+/**
  * Функция получает проекты
  * @param  boolean $dbConnection результат соединения
  * @param  array $user массив с данными о пользователе
@@ -50,15 +72,16 @@ function addUserToDatabase($dbConnection, $resultRegister)
  * @param  array $file  путь к файлу если передан
  */
 /* ВОт здесь неправильно как-то файл передается */
-function addTaskToDatabase($dbConnection, $resultRegister, $file)
+function addTaskToDatabase($dbConnection, $resultAddTask, $file)
 {
+    var_dump($resultAddTask);
     $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
-    $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
+    /*$idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
     setData($dbConnection, $sqlAddTask, [
         $idProject[0]['id'],
         $resultAddTask['valid']['deadline'],
-        $resultAddTask['valid']['task']]);
+        $resultAddTask['valid']['task']]);*/
 }
 
 /**
@@ -217,7 +240,7 @@ function validateTaskForm($fields)
 {
     $errors = false;
     $output = AddkeysForValidation($fields);
-    $validateEmail = strtotime($_POST['deadline']) !== FALSE;
+    $validateEmail = checkForDateCorrected($_POST['deadline']) !== FALSE;
     foreach ($fields as $name) {
         if (!empty($_POST[$name]) && $validateEmail) {
             $output['valid'][$name] = sanitizeInput($_POST[$name]);
