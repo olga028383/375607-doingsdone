@@ -22,7 +22,6 @@ $dataForRegisterTemplate = AddkeysForValidation(['email', 'name', 'password']);
 if (isset($_POST['register'])) {
 
     $resultRegister = validateLoginForm($dbConnection, ['email', 'name', 'password']);
-    var_dump($resultRegister);
     if (!$resultRegister['error']) {
         /* Функция добавляет пользователя в базу */
         addUserToDatabase($dbConnection, $resultRegister);
