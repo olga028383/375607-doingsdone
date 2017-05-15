@@ -97,7 +97,7 @@ if (isset($_GET['add']) || isset($_POST['send'])) {
     $modalShow = true;
 }
 if (isset($_POST['send'])) {
-    $resultAddTask = validateLoginForm(null, ['task', 'project', 'deadline']);
+    $resultAddTask = validateTaskForm(['task', 'project', 'deadline']);
     if (!$resultAddTask['error']) {
 
         $file = null;
