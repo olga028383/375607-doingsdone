@@ -10,7 +10,7 @@ function checkForDateCorrected($str)
     $translate = [
         'Сегодня' => strtotime('Today'),
         'Завтра' => strtotime('Tomorrow'),
-        'Послезавтра' => time()+ 172800,
+        'Послезавтра' => time() + 172800,
         'Понедельник' => strtotime('Monday'),
         'Вторник' => strtotime('Tuesday'),
         'Среда' => strtotime('Wednesday'),
@@ -19,9 +19,9 @@ function checkForDateCorrected($str)
         'Суббота' => strtotime('Saturday'),
         'Воскресенье' => strtotime('Sunday')
     ];
-    
-  return $translate[$str];
+    return ($translate[$str] && $translate[$str] >= time()) ? $translate[$str] : false;
 }
+
 /**
  * Функция получает проекты
  * @param  boolean $dbConnection результат соединения
@@ -76,12 +76,12 @@ function addTaskToDatabase($dbConnection, $resultAddTask, $file)
 {
     var_dump($resultAddTask);
     $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
-    /*$idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
-    $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
-    setData($dbConnection, $sqlAddTask, [
-        $idProject[0]['id'],
-        $resultAddTask['valid']['deadline'],
-        $resultAddTask['valid']['task']]);*/
+    /* $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
+      $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
+      setData($dbConnection, $sqlAddTask, [
+      $idProject[0]['id'],
+      $resultAddTask['valid']['deadline'],
+      $resultAddTask['valid']['task']]); */
 }
 
 /**
