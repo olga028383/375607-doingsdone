@@ -87,7 +87,7 @@ if (isset($_GET['project'])) {
             $valID = $value['id'];
         }
     }
-    if ($valID) {
+    if ($valID || $project == 0) {
         $tasksToDisplay = array_filter($taskList, function($task) use ($valID, $project) {
             return $project == 0 || $valID == $task['project'];
         });

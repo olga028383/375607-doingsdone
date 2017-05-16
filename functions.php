@@ -326,21 +326,18 @@ function includeTemplate($template, $templateData)
 /**
  * Функция считает количество задач.
  * @param array $taskList массив задач
- * @param string $nameCategory - имя категории
+ * @param string $idCategory - имя категории
  * @return int 
  */
-function getNumberTasks($taskList, $nameCategory)
+function getNumberTasks($taskList, $idCategory)
 {
-    if (!$nameCategory) {
-        return 0;
-    }
-    if ($nameCategory == "Все") {
+    if ($idCategory == '0') {
         return count($taskList);
     }
 
     $countTask = 0;
     foreach ($taskList as $key => $value) {
-        if ($value["project"] == $nameCategory) {
+        if ($value["project"] == $idCategory) {
             $countTask ++;
         }
     }

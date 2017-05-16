@@ -14,7 +14,8 @@
       <ul class="main-navigation__list">
         <?php
         $keyToHightlight = !empty($_GET['project']) ? $_GET['project'] : 0;
-        foreach ($templateData['projects'] as $val):
+        $newArray = array_merge([['id' => 0, 'name' => 'Все']], $templateData['projects']);
+        foreach ($newArray as $val):
             $activeClass = '';
             if ($val['id'] == $keyToHightlight) {
                 $activeClass = "main-navigation__list-item--active";
