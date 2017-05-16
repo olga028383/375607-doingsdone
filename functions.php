@@ -7,9 +7,10 @@
  */
 function checkForDateCorrected($str)
 {
+    //Как проверить еще со временем? и вопрос не по теме функции, как отловить нажатый чекбокс у задачи, чтобы отметить ее как выполненную?
     $translate = [
-        'Сегодня' => strtotime('Today'),
-        'Завтра' => strtotime('Tomorrow'),
+        'Сегодня' => time(),
+        'Завтра' => time() + 86400,
         'Послезавтра' => time() + 172800,
         'Понедельник' => strtotime('Monday'),
         'Вторник' => strtotime('Tuesday'),
@@ -19,7 +20,16 @@ function checkForDateCorrected($str)
         'Суббота' => strtotime('Saturday'),
         'Воскресенье' => strtotime('Sunday')
     ];
-    return ($translate[$str] && $translate[$str] >= time()) ? $translate[$str] : false;
+    return (isset($translate[$str]) && $translate[$str] >= strtotime('24:00:00')) ? $translate[$str] : false;
+}
+
+/**
+ * Функция устанавливает метки для выполненных задач
+ * @param  boolean $dbConnection результат соединения
+ */
+function updateForTasksFieldComplete($dbConnection)
+{
+    updateData($dbConnection, 'tasks', ['complete = ' => date("Y-m-d H:i:s", time())], ['deadline <' => date("Y-m-d H:i:s", strtotime('23:59:59'))]);
 }
 
 /**
@@ -35,13 +45,13 @@ function getProjects($dbConnection, $user)
 }
 
 /**
- * Функция получает задачи и имена проектов
+ * Функция получает задачи, id проектов и метки для задач (выполнена или нет)
  * @param  boolean $dbConnection результат соединения
  * @return array массив задач и проектов, соответствующих авторизованному пользователю
  */
 function getTasksByProject($dbConnection, $user)
 {
-    $sqlGetTasks = "SELECT name as task, deadline, project_id as project FROM tasks WHERE user_id = ?";
+    $sqlGetTasks = "SELECT name as task, deadline, project_id as project, complete FROM tasks WHERE user_id = ?";
     return getData($dbConnection, $sqlGetTasks, [$user['id']]);
 }
 
@@ -52,7 +62,7 @@ function getTasksByProject($dbConnection, $user)
  */
 function addUserToDatabase($dbConnection, $resultRegister)
 {
-    $sqlAddUser = "INSERT INTO user(registered, email, name, password) VALUES (CURDATE(), ?, ?, ?)";
+    $sqlAddUser = "INSERT INTO user(registered, email, name, password) VALUES (NOW(), ?, ?, ?)";
     setData($dbConnection, $sqlAddUser, [
         $resultRegister['output']['valid']['email'],
         $resultRegister['output']['valid']['name'],
@@ -66,20 +76,21 @@ function addUserToDatabase($dbConnection, $resultRegister)
  * @param  array $file  путь к файлу если передан
  */
 /* ВОт здесь неправильно как-то файл передается */
-function addTaskToDatabase($dbConnection, $resultAddTask, $file)
+function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
 {
-    $sqlSearchId = "SELECT id FROM `projects` WHERE name = ?";
-    /* $idProject = getData($dbConnection, $sqlSearchId, [$resultAddTask['valid']['project']]);
-      $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name) VALUES ( 1, ?, CURDATE(), ?, ?)";
-      setData($dbConnection, $sqlAddTask, [
-      $idProject[0]['id'],
-      $resultAddTask['valid']['deadline'],
-      $resultAddTask['valid']['task']]); */
+    $file = ($pathFile !== null) ? $pathFile : '';
+    $user_id = $user['id'];
+    $project_id = (int) $resultAddTask['valid']['project'];
+    $deadline = date("Y-m-d H:i:s", checkForDateCorrected($resultAddTask['valid']['deadline']));
+    $name = $resultAddTask['valid']['task'];
+    $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
+    setData($dbConnection, $sqlAddTask, [$user_id, $project_id, $deadline, $name, $file]);
 }
 
 /**
  * Функция разбивает массив на 2 по ключу и значению
  * @param  array $array массив для преобразования
+ *  @param string $condition знак для условия обновления
  * @return array , значениями которого я вляются 2 массива,
  * 1 - это строка с плайсхолдерами, 2 строка со значениями для них
  */
@@ -89,7 +100,7 @@ function convertAssocDataToWhereStmt($array = [])
         return [];
     }
     $result = array_map(function($k) {
-        return $k . ' = ?';
+        return $k . ' ?';
     }, array_keys($array));
 
     return [implode(", ", $result), array_values($array)];
@@ -209,10 +220,13 @@ function validateLoginForm($dbConnection, $fields)
     $user = null;
     $output = AddkeysForValidation($fields);
     $user = searchUserByEmail($_POST['email'], $dbConnection);
-    $validateEmail = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
     foreach ($fields as $name) {
-        if (!empty($_POST[$name]) && $validateEmail) {
-            $output['valid'][$name] = sanitizeInput($_POST[$name]);
+        //Для поля email одна проверка, для отальных другая
+        $validateTestFields = ($name == 'email') ?
+                filter_var(sanitizeInput($_POST[$name]), FILTER_VALIDATE_EMAIL) :
+                sanitizeInput($_POST[$name]);
+        if (!empty($_POST[$name]) && $validateTestFields) {
+            $output['valid'][$name] = $_POST[$name];
         } else {
             $output['errors'][$name] = true;
             $errors = true;
@@ -234,13 +248,12 @@ function validateTaskForm($fields)
     $errors = false;
     $output = AddkeysForValidation($fields);
     foreach ($fields as $name) {
-        if ($name == $_POST['deadline'] && checkForDateCorrected($_POST['deadline'])) {
-            $output['valid']['deadline'] = checkForDateCorrected($_POST['deadline']);
-        } else {
-            $output['errors']['deadline'] = true;
-        }
-        if (!empty($_POST[$name])) {
-            $output['valid'][$name] = sanitizeInput($_POST[$name]);
+        //Для поля deadline одна проверка, для отальных другая
+        $testValuePost = ($name == 'deadline') ?
+                checkForDateCorrected(sanitizeInput($_POST[$name])) :
+                sanitizeInput($_POST[$name]);
+        if (!empty($_POST[$name]) && $testValuePost) {
+            $output['valid'][$name] = $_POST[$name];
         } else {
             $output['errors'][$name] = true;
             $errors = true;

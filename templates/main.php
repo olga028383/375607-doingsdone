@@ -71,7 +71,7 @@
           $showCompletedTasks = '';
           // определяем переменную и показываем в зависимости от параметра куки 
           // только завершенные задачи
-          if (strtotime($val['deadline']) <= time()) {
+          if (!empty($val['complete'])) {
               $taskCompleted = 'task--completed';
               $showCompletedTasks = $hidden;
           }

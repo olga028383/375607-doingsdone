@@ -3,7 +3,6 @@ session_start();
 error_reporting(E_ALL);
 require_once 'mysql_helper.php';
 require_once 'functions.php';
-
 /* Инициализация переменных */
 $user = [];
 $bodyClassOverlay = '';
@@ -39,11 +38,12 @@ if (isset($_POST['register'])) {
 
 // Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
 if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
-    /* if($_GET['login'] == 'message'){
-      $messageAfterRegistered = true;
-      } */
     $bodyClassOverlay = 'overlay';
     $showAuthenticationForm = true;
+}
+//Если пользователь только что авторизовался, то покажем ему сообщение
+if (isset($_GET['login']) && $_GET['login'] == 'message'){
+    $messageAfterRegistered = true;
 }
 $dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
 if (isset($_POST['sendAuth'])) {
@@ -72,6 +72,9 @@ if (is_object($dbConnection) && $user) {
     $projectList = getProjects($dbConnection, $user);
     /* Получаем массив задач из базы */
     $taskList = getTasksByProject($dbConnection, $user);
+    /*Проверяем просроченные задачи и выставляем метку complete*/
+    //Как поставить обновление поля complete,чтобы чтобы задовалось время не произвольное как сейчас, а бралось из поля 'deadline' в таблице?
+    updateForTasksFieldComplete($dbConnection);
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
@@ -106,18 +109,20 @@ if (isset($_GET['add']) || isset($_POST['send'])) {
 }
 if (isset($_POST['send'])) {
     $resultAddTask = validateTaskForm(['task', 'project', 'deadline']);
+    
     if (!$resultAddTask['error']) {
 
         $file = null;
+        $path = null;
         if (isset($_FILES['preview'])) {
             $file = $_FILES['preview'];
             if (is_uploaded_file($file['tmp_name'])) {
                 move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
             }
+            $path = '/upload/'.$file['name'];
         }
-
         /* Функция добавляет задачу в базу */
-        addTaskToDatabase($dbConnection, $resultAddTask, $file);
+        addTaskToDatabase($dbConnection, $resultAddTask, $path, $user);
         $bodyClassOverlay = '';
         $modalShow = false;
     }
