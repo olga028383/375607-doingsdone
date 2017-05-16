@@ -69,11 +69,17 @@
       foreach ($templateData['tasksToDisplay'] as $key => $val):
           $taskCompleted = '';
           $showCompletedTasks = '';
+          $hiddenButtonComplete = '';
+          $hiddenFieldFile = '';
           // определяем переменную и показываем в зависимости от параметра куки 
           // только завершенные задачи
           if (!empty($val['complete'])) {
               $taskCompleted = 'task--completed';
               $showCompletedTasks = $hidden;
+              $hiddenButtonComplete = 'hidden';
+          }
+          if(empty($val['file'])){
+              $hiddenFieldFile = 'hidden';
           }
           ?>
           <tr class="tasks__item task <?= $taskCompleted; ?>" <?= $showCompletedTasks; ?> >
@@ -83,8 +89,27 @@
                 <span class="checkbox__text"><?= htmlspecialchars($val['task']); ?></span>
               </label>
             </td>
+            <td class="task__file">
+              <a class="download-link" <?=$hiddenFieldFile;?> href="<?=$val['file'];?>">Home.psd</a>
+            </td>
             <td class="task__date"><?= htmlspecialchars($val['deadline']); ?></td>
-            <td class="task__controls"></td>
+            <td class="task__controls">
+              <button class="expand-control" type="button" name="button">Открыть список комманд</button>
+
+              <ul class="expand-list hidden">
+                <li class="expand-list__item" <?= $hiddenButtonComplete; ?>>
+                  <a href="/index.php?complete=<?= $val['id']; ?>">Выполнить</a>
+                </li>
+
+                <li class="expand-list__item">
+                  <a href="#">Удалить</a>
+                </li>
+
+                <li class="expand-list__item">
+                  <a href="#">Дублировать</a>
+                </li>
+              </ul>
+            </td>
           </tr>
       <?php endforeach; ?>
     </table>

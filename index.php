@@ -12,7 +12,7 @@ $showPageRegister = false;
 $messageAfterRegistered = false;
 $taskList = [];
 //Соединение с б/д
-$dbConnection = setConnection('localhost', 'mysql', 'mysql', 'thingsarefine');
+$dbConnection = setConnection();
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
 if (isset($_GET['register']) || isset($_POST['register'])) {
     $showPageRegister = true;
@@ -42,7 +42,7 @@ if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
     $showAuthenticationForm = true;
 }
 //Если пользователь только что авторизовался, то покажем ему сообщение
-if (isset($_GET['login']) && $_GET['login'] == 'message'){
+if (isset($_GET['login']) && $_GET['login'] == 'message') {
     $messageAfterRegistered = true;
 }
 $dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
@@ -72,9 +72,6 @@ if (is_object($dbConnection) && $user) {
     $projectList = getProjects($dbConnection, $user);
     /* Получаем массив задач из базы */
     $taskList = getTasksByProject($dbConnection, $user);
-    /*Проверяем просроченные задачи и выставляем метку complete*/
-    //Как поставить обновление поля complete,чтобы чтобы задовалось время не произвольное как сейчас, а бралось из поля 'deadline' в таблице?
-    updateForTasksFieldComplete($dbConnection);
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
@@ -109,9 +106,7 @@ if (isset($_GET['add']) || isset($_POST['send'])) {
 }
 if (isset($_POST['send'])) {
     $resultAddTask = validateTaskForm(['task', 'project', 'deadline']);
-    
     if (!$resultAddTask['error']) {
-
         $file = null;
         $path = null;
         if (isset($_FILES['preview'])) {
@@ -119,7 +114,7 @@ if (isset($_POST['send'])) {
             if (is_uploaded_file($file['tmp_name'])) {
                 move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
             }
-            $path = '/upload/'.$file['name'];
+            $path = $file['name'];
         }
         /* Функция добавляет задачу в базу */
         addTaskToDatabase($dbConnection, $resultAddTask, $path, $user);
@@ -135,6 +130,10 @@ if (isset($_GET['show_completed'])) {
     setcookie('show_completed', $show_completed, strtotime("+30 days"));
 } else if (isset($_COOKIE['show_completed'])) {
     $show_completed = $_COOKIE['show_completed'];
+}
+//Отмечаем задачу как выполненную если пришед параметр complete
+if (isset($_GET['complete'])) {
+    updateForTasksFieldComplete($dbConnection, $_GET['complete']);
 }
 ?>
 <!DOCTYPE html>
@@ -153,23 +152,23 @@ if (isset($_GET['show_completed'])) {
       <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', ['user' => $user]); ?>
         <?php
-        if ($showPageRegister) {
-            print(includeTemplate('register.php', $dataForRegisterTemplate));
-        } else {
-            if (!$user) {
-                print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]));
+            if ($showPageRegister) {
+                print(includeTemplate('register.php', $dataForRegisterTemplate));
             } else {
-                print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
+                if (!$user) {
+                    print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]));
+                } else {
+                    print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
+                }
             }
-        }
         ?>
       </div>
     </div>
     <?php
-    print includeTemplate('footer.php', ['user' => $user]);
-    if ($modalShow) {
-        print(includeTemplate('add-project.php', $dataFormAddTask + ['projects' => $projectList]));
-    }
+        print includeTemplate('footer.php', ['user' => $user]);
+        if ($modalShow) {
+            print(includeTemplate('add-project.php', $dataFormAddTask + ['projects' => $projectList]));
+        }
     ?>
     <script type="text/javascript" src="js/script.js"></script>
   </body>

@@ -7,7 +7,6 @@
  */
 function checkForDateCorrected($str)
 {
-    //Как проверить еще со временем? и вопрос не по теме функции, как отловить нажатый чекбокс у задачи, чтобы отметить ее как выполненную?
     $translate = [
         'Сегодня' => time(),
         'Завтра' => time() + 86400,
@@ -20,16 +19,34 @@ function checkForDateCorrected($str)
         'Суббота' => strtotime('Saturday'),
         'Воскресенье' => strtotime('Sunday')
     ];
-    return (isset($translate[$str]) && $translate[$str] >= strtotime('24:00:00')) ? $translate[$str] : false;
+    $pattern = '(' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
+    $matches = [];
+    $matched = preg_match("/^$pattern$/", $str, $matches);
+    if (!$matched) {
+        return false;
+    }
+    if (isset($matches[4]) && (int) $matches[4] > 23) {
+        return false;
+    }
+    if (isset($matches[5]) && (int) $matches[5] > 59) {
+        return false;
+    }
+    $date = $matches[1];
+    $time = isset($matches[3]) ? $matches[3] : null;
+    $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
+    $resultTimestamp = $translate[$date] + $seconds;
+    return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
 }
 
 /**
  * Функция устанавливает метки для выполненных задач
  * @param  boolean $dbConnection результат соединения
  */
-function updateForTasksFieldComplete($dbConnection)
+function updateForTasksFieldComplete($dbConnection, $id)
 {
-    updateData($dbConnection, 'tasks', ['complete = ' => date("Y-m-d H:i:s", time())], ['deadline <' => date("Y-m-d H:i:s", strtotime('23:59:59'))]);
+    updateData($dbConnection, 'tasks', ['complete = ' => date("Y-m-d H:i:s", time())], ['id =' => (int) $id]);
+    header("Location: /index.php");
+    exit();
 }
 
 /**
@@ -45,13 +62,13 @@ function getProjects($dbConnection, $user)
 }
 
 /**
- * Функция получает задачи, id проектов и метки для задач (выполнена или нет)
+ * Функция получает задачи, id проектов, файл, id и метки для задач (выполнена или нет)
  * @param  boolean $dbConnection результат соединения
  * @return array массив задач и проектов, соответствующих авторизованному пользователю
  */
 function getTasksByProject($dbConnection, $user)
 {
-    $sqlGetTasks = "SELECT name as task, deadline, project_id as project, complete FROM tasks WHERE user_id = ?";
+    $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ?";
     return getData($dbConnection, $sqlGetTasks, [$user['id']]);
 }
 
@@ -78,13 +95,15 @@ function addUserToDatabase($dbConnection, $resultRegister)
 /* ВОт здесь неправильно как-то файл передается */
 function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
 {
-    $file = ($pathFile !== null) ? $pathFile : '';
+    $file = ($pathFile) ? '/upload/'.$pathFile : '';
     $user_id = $user['id'];
     $project_id = (int) $resultAddTask['valid']['project'];
     $deadline = date("Y-m-d H:i:s", checkForDateCorrected($resultAddTask['valid']['deadline']));
     $name = $resultAddTask['valid']['task'];
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
     setData($dbConnection, $sqlAddTask, [$user_id, $project_id, $deadline, $name, $file]);
+    header("Location: /index.php");
+    exit();
 }
 
 /**
@@ -177,16 +196,12 @@ function getData($connectDB, $sql, $data = [])
 
 /**
  * Функция устанавливает соединение с базой данных
- * @param string $server адрес сервера
- * @param string $nameUser имя пользователя
- * @param string $password пароль пользователя б/д
- * @param string $nameDataBase пароль пользователя б/д
  * @return mysqli|string соединение если успешно, иначе сообщение об ошибке.
  */
-function setConnection($server, $nameUser, $password, $nameDataBase)
+function setConnection()
 {
-    $result = [];
-    $link = mysqli_connect($server, $nameUser, $password, $nameDataBase);
+    include 'config.php';
+    $link = mysqli_connect($DBCONFIG['host'], $DBCONFIG['user'], $DBCONFIG['password'], $DBCONFIG['database']);
     return ($link) ? $link : 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
 }
 
@@ -249,9 +264,7 @@ function validateTaskForm($fields)
     $output = AddkeysForValidation($fields);
     foreach ($fields as $name) {
         //Для поля deadline одна проверка, для отальных другая
-        $testValuePost = ($name == 'deadline') ?
-                checkForDateCorrected(sanitizeInput($_POST[$name])) :
-                sanitizeInput($_POST[$name]);
+        $testValuePost = ($name == 'deadline') ? checkForDateCorrected(sanitizeInput($_POST[$name])) : sanitizeInput($_POST[$name]);
         if (!empty($_POST[$name]) && $testValuePost) {
             $output['valid'][$name] = $_POST[$name];
         } else {
