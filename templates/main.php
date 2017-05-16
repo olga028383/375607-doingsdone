@@ -14,19 +14,15 @@
       <ul class="main-navigation__list">
         <?php
         $keyToHightlight = !empty($_GET['project']) ? $_GET['project'] : 0;
-        /* Добавляем значение 'все' первым индексом в список задач выбираем только ключи с названием задачи*/
-        $newIndexToArrayProjects = array_merge( ['Все'] , array_map(function($k){
-            return $k['name'];
-        }, $templateData['projects']));
-        foreach ($newIndexToArrayProjects as $key => $val):
+        foreach ($templateData['projects'] as $val):
             $activeClass = '';
-            if ($key == $keyToHightlight) {
+            if ($val['id'] == $keyToHightlight) {
                 $activeClass = "main-navigation__list-item--active";
             }
             ?>
             <li class="main-navigation__list-item <?= $activeClass; ?>">
-              <a class="main-navigation__list-item-link" href="/index.php?project=<?= $key; ?>"><?= htmlspecialchars($val); ?></a>
-              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val)); ?></span>
+              <a class="main-navigation__list-item-link" href="/index.php?project=<?= $val['id']; ?>"><?= htmlspecialchars($val['name']); ?></a>
+              <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val['id'])); ?></span>
             </li>
         <?php endforeach; ?>
       </ul>

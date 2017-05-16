@@ -33,6 +33,7 @@ function getProjects($dbConnection, $user)
     $sql = "SELECT id, name FROM `projects` WHERE user_id = ?";
     return getData($dbConnection, $sql, [$user['id']]);
 }
+
 /**
  * Функция получает задачи и имена проектов
  * @param  boolean $dbConnection результат соединения
@@ -40,11 +41,7 @@ function getProjects($dbConnection, $user)
  */
 function getTasksByProject($dbConnection, $user)
 {
-    $sqlGetTasks = "SELECT tasks.name as task, deadline, projects.name as project "
-            . "FROM tasks "
-            . "JOIN projects "
-            . "ON tasks.project_id = projects.id "
-            . "AND tasks.user_id = ?";
+    $sqlGetTasks = "SELECT name as task, deadline, project_id as project FROM tasks WHERE user_id = ?";
     return getData($dbConnection, $sqlGetTasks, [$user['id']]);
 }
 
@@ -237,10 +234,10 @@ function validateTaskForm($fields)
     $errors = false;
     $output = AddkeysForValidation($fields);
     foreach ($fields as $name) {
-        if($name == $_POST['deadline'] && checkForDateCorrected($_POST['deadline'])){
+        if ($name == $_POST['deadline'] && checkForDateCorrected($_POST['deadline'])) {
             $output['valid']['deadline'] = checkForDateCorrected($_POST['deadline']);
-        }else{
-           $output['errors']['deadline'] = true;
+        } else {
+            $output['errors']['deadline'] = true;
         }
         if (!empty($_POST[$name])) {
             $output['valid'][$name] = sanitizeInput($_POST[$name]);

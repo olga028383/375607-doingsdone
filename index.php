@@ -79,13 +79,21 @@ $tasksToDisplay = [];
 $project = '';
 if (isset($_GET['project'])) {
     $project = (int) abs(($_GET['project']));
-    if ($project > count($projectList)) {
+    $valID = null;
+    foreach ($projectList as $value) {
+        if ($value['id'] !== $project) {
+            continue;
+        } else {
+            $valID = $value['id'];
+        }
+    }
+    if ($valID) {
+        $tasksToDisplay = array_filter($taskList, function($task) use ($valID, $project) {
+            return $project == 0 || $valID == $task['project'];
+        });
+    } else {
         header("HTTP/1.0 404 Not Found");
         exit();
-    } else {
-        $tasksToDisplay = array_filter($taskList, function($task) use ($projectList, $project) {
-            return $project == 0 || $projectList[$project - 1] == $task['project'];
-        });
     }
 } else {
     $tasksToDisplay = $taskList;
@@ -104,10 +112,10 @@ if (isset($_POST['send'])) {
         if (isset($_FILES['preview'])) {
             $file = $_FILES['preview'];
             if (is_uploaded_file($file['tmp_name'])) {
-               move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+                move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
             }
         }
-       
+
         /* Функция добавляет задачу в базу */
         addTaskToDatabase($dbConnection, $resultAddTask, $file);
         $bodyClassOverlay = '';
