@@ -1,7 +1,6 @@
 <?
 session_start();
 error_reporting(E_ALL);
-require_once 'mysql_helper.php';
 require_once 'functions.php';
 /* Инициализация переменных */
 $user = [];
@@ -14,27 +13,10 @@ $taskList = [];
 //Соединение с б/д
 $dbConnection = setConnection();
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
-if (isset($_GET['register']) || isset($_POST['register'])) {
+if (isset($_GET['register'])) {
     $showPageRegister = true;
 }
 $dataForRegisterTemplate = AddkeysForValidation(['email', 'name', 'password']);
-if (isset($_POST['register'])) {
-
-    $resultRegister = validateLoginForm($dbConnection, ['email', 'name', 'password']);
-    if (!$resultRegister['error']) {
-        /* Функция добавляет пользователя в базу */
-        addUserToDatabase($dbConnection, $resultRegister);
-        header("Location: /index.php?login=message");
-        exit();
-    }
-    if ($resultRegister['user']) {
-        $resultRegister['output']['user'] = $resultRegister['user'];
-        $dataForRegisterTemplate = $resultRegister['output'];
-    } else {
-        $resultRegister['output']['user'] = null;
-        $dataForRegisterTemplate = $resultRegister['output'];
-    }
-}
 
 // Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
 if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
@@ -42,7 +24,7 @@ if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
     $showAuthenticationForm = true;
 }
 //Если пользователь только что авторизовался, то покажем ему сообщение
-if (isset($_GET['login']) && $_GET['login'] == 'message') {
+if (isset($_GET['login']) && isset($_GET['show_message'])) {
     $messageAfterRegistered = true;
 }
 $dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);

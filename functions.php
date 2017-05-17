@@ -1,5 +1,6 @@
 <?php
 
+require_once 'mysql_helper.php';
 /**
  * Функция проверяет корректность даты заполняемой пользователем
  * @param  string $str введенная дата
@@ -25,10 +26,10 @@ function checkForDateCorrected($str)
     if (!$matched) {
         return false;
     }
-    if (isset($matches[4]) && (int) $matches[4] > 23) {
+    if (isset($matches[4]) && (int)$matches[4] > 23) {
         return false;
     }
-    if (isset($matches[5]) && (int) $matches[5] > 59) {
+    if (isset($matches[5]) && (int)$matches[5] > 59) {
         return false;
     }
     $date = $matches[1];
@@ -36,17 +37,6 @@ function checkForDateCorrected($str)
     $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
     $resultTimestamp = $translate[$date] + $seconds;
     return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
-}
-
-/**
- * Функция устанавливает метки для выполненных задач
- * @param  boolean $dbConnection результат соединения
- */
-function updateForTasksFieldComplete($dbConnection, $id)
-{
-    updateData($dbConnection, 'tasks', ['complete = ' => date("Y-m-d H:i:s", time())], ['id =' => (int) $id]);
-    header("Location: /index.php");
-    exit();
 }
 
 /**
@@ -73,6 +63,19 @@ function getTasksByProject($dbConnection, $user)
 }
 
 /**
+ * @param $dbConnection
+ * @param $id
+ * @param $user
+ * @return array|null
+ */
+function getTaskById($dbConnection, $id, $user)
+{
+    $sqlGetTasks = "SELECT * FROM tasks WHERE user_id = ? AND id = ?";
+    $res = getData($dbConnection, $sqlGetTasks, [$user['id'], $id]);
+    return empty($res) ? null : $res[0];
+}
+
+/**
  * Функция добавляет пользователей в базу
  * @param  boolean $dbConnection результат соединения
  * @param  array $resultRegister валидные и не валидные поля
@@ -90,14 +93,14 @@ function addUserToDatabase($dbConnection, $resultRegister)
  * Функция добавляет задачу в базу
  * @param  boolean $dbConnection результат соединения
  * @param  array $resultRegister валидные и не валидные поля
- * @param  array $file  путь к файлу если передан
+ * @param  array $file путь к файлу если передан
  */
 /* ВОт здесь неправильно как-то файл передается */
 function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
 {
-    $file = ($pathFile) ? '/upload/'.$pathFile : '';
+    $file = ($pathFile) ? '/upload/' . $pathFile : '';
     $user_id = $user['id'];
-    $project_id = (int) $resultAddTask['valid']['project'];
+    $project_id = (int)$resultAddTask['valid']['project'];
     $deadline = date("Y-m-d H:i:s", checkForDateCorrected($resultAddTask['valid']['deadline']));
     $name = $resultAddTask['valid']['task'];
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
@@ -109,7 +112,7 @@ function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
 /**
  * Функция разбивает массив на 2 по ключу и значению
  * @param  array $array массив для преобразования
- *  @param string $condition знак для условия обновления
+ * @param string $condition знак для условия обновления
  * @return array , значениями которого я вляются 2 массива,
  * 1 - это строка с плайсхолдерами, 2 строка со значениями для них
  */
@@ -118,7 +121,7 @@ function convertAssocDataToWhereStmt($array = [])
     if (!$array) {
         return [];
     }
-    $result = array_map(function($k) {
+    $result = array_map(function ($k) {
         return $k . ' ?';
     }, array_keys($array));
 
@@ -172,7 +175,7 @@ function setData($connectDB, $sql, $data = [])
  * @param  boolean $connectDB результат соединения
  * @param string $sql - sql запрос
  * @param array $data массив с данными для запроса
- * @return array $theResult  пустой массив или 
+ * @return array $theResult  пустой массив или
  */
 function getData($connectDB, $sql, $data = [])
 {
@@ -209,7 +212,7 @@ function setConnection()
  * Функция находит пользователя по email в базе данных
  * @param array $dbConnection соединение с базой данных
  * @param string email электронная почта
- * @return array $user если пользоваетель существует или null 
+ * @return array $user если пользоваетель существует или null
  */
 function searchUserByEmail($email, $dbConnection)
 {
@@ -219,7 +222,7 @@ function searchUserByEmail($email, $dbConnection)
 
 /**
  * Функция проверяет наличие заполненных полей и записывет значение в массив валидации,
- * @param array $fields  поля которые требуется проверять на валидность
+ * @param array $fields поля которые требуется проверять на валидность
  * @param array $dbConnection соединение с б/д
  * @return array[
  *      'error'=>bool,
@@ -238,8 +241,8 @@ function validateLoginForm($dbConnection, $fields)
     foreach ($fields as $name) {
         //Для поля email одна проверка, для отальных другая
         $validateTestFields = ($name == 'email') ?
-                filter_var(sanitizeInput($_POST[$name]), FILTER_VALIDATE_EMAIL) :
-                sanitizeInput($_POST[$name]);
+            filter_var(sanitizeInput($_POST[$name]), FILTER_VALIDATE_EMAIL) :
+            sanitizeInput($_POST[$name]);
         if (!empty($_POST[$name]) && $validateTestFields) {
             $output['valid'][$name] = $_POST[$name];
         } else {
@@ -252,7 +255,7 @@ function validateLoginForm($dbConnection, $fields)
 
 /**
  * Функция проверяет наличие заполненных полей и записывет значение в массив валидации
- * @param array $fields  поля которые требуется проверять на валидность
+ * @param array $fields поля которые требуется проверять на валидность
  * @return array[
  *      'error'=>bool,
  *      'valid' => array,
@@ -292,7 +295,7 @@ function AddkeysForValidation($keysField)
 
 /**
  * Функция выводит блок с ошибкой.
- * @param array $errors  - массив с ошибками
+ * @param array $errors - массив с ошибками
  * @param string $name
  */
 function addRequiredSpan($errors, $name, $text = '')
@@ -308,7 +311,7 @@ function addRequiredSpan($errors, $name, $text = '')
 
 /**
  * Функция устанавливает стиль для незаполненных поле формы.
- * @param array $errors  - массив с ошибками
+ * @param array $errors - массив с ошибками
  * @param string $name
  * @return string
  */
@@ -353,7 +356,7 @@ function includeTemplate($template, $templateData)
  * Функция считает количество задач.
  * @param array $taskList массив задач
  * @param string $idCategory - имя категории
- * @return int 
+ * @return int
  */
 function getNumberTasks($taskList, $idCategory)
 {
@@ -364,7 +367,7 @@ function getNumberTasks($taskList, $idCategory)
     $countTask = 0;
     foreach ($taskList as $key => $value) {
         if ($value["project"] == $idCategory) {
-            $countTask ++;
+            $countTask++;
         }
     }
     return $countTask;

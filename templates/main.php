@@ -98,15 +98,15 @@
 
               <ul class="expand-list hidden">
                 <li class="expand-list__item" <?= $hiddenButtonComplete; ?>>
-                  <a href="/index.php?complete=<?= $val['id']; ?>">Выполнить</a>
+                  <a href="/complete-task.php?id=<?= $val['id']; ?>">Выполнить</a>
                 </li>
 
                 <li class="expand-list__item">
-                  <a href="#">Удалить</a>
+                  <a href="/delete-task.php?id=<?= $val['id']; ?>">Удалить</a>
                 </li>
 
                 <li class="expand-list__item">
-                  <a href="#">Дублировать</a>
+                  <a href="/duplicate-task.php?id=<?= $val['id']; ?>">Дублировать</a>
                 </li>
               </ul>
             </td>
