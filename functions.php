@@ -55,7 +55,7 @@ function checkForDateCorrected($str)
         return false;
     }
     $date = $matches[1];
-    $time = isset($matches[4]) ? str_replace(' в ', '', $matches[4]) : null;
+    $time = isset($matches[4]) ? $matches[4] : null;
     $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
     if (isset($translate[$date])) {
         $resultTimestamp = $translate[$date] + $seconds;
