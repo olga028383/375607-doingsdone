@@ -4,6 +4,7 @@
  * array $templateData['errors'] содержит массив ошибок для каждого поля,
  * array $templateData['valid'] содержит массив заполненных полей
  */
+
 ?>
 <div class="content">
   <section class="content__side">
@@ -71,3 +72,4 @@
     </form>
   </main>
 </div>
+

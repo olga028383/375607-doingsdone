@@ -1,6 +1,26 @@
 <?php
 
 require_once 'mysql_helper.php';
+/**Функция печатает тег head */
+function printHead()
+{
+    print("<!DOCTYPE html>
+        <html lang='en'>
+        
+        <head>
+            <meta charset='UTF-8'>
+            <title>Дела в Порядке!</title>
+            <link rel='stylesheet' href='css/normalize.css'>
+            <link rel='stylesheet' href='css/style.css'>
+        </head>");
+}
+
+/**Функция печатает закрывающий тег body, html, скрипты  */
+function printEndBodyHtml()
+{
+    print("<script type='text/javascript' src='js/script.js'></script></body></html>");
+}
+
 /**
  * Функция проверяет корректность даты заполняемой пользователем
  * @param  string $str введенная дата
@@ -22,8 +42,11 @@ function checkForDateCorrected($str)
     ];
     $pattern = '(' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
     $matches = [];
+    $matchesDataInt = [];
     $matched = preg_match("/^$pattern$/", $str, $matches);
-    if (!$matched) {
+    $indData = preg_match("/^(\d{2}\.\d{2}\.\d{4})$/", $str, $matchesDataInt);
+
+    if (!$matched && !$indData) {
         return false;
     }
     if (isset($matches[4]) && (int)$matches[4] > 23) {
@@ -32,11 +55,15 @@ function checkForDateCorrected($str)
     if (isset($matches[5]) && (int)$matches[5] > 59) {
         return false;
     }
-    $date = $matches[1];
-    $time = isset($matches[3]) ? $matches[3] : null;
-    $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
-    $resultTimestamp = $translate[$date] + $seconds;
-    return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
+    if($indData){
+        return strtotime($matchesDataInt[1]) >= strtotime('24:00:00') ? strtotime($matchesDataInt[1] . date('h:i:s')) : false;
+    }else {
+        $date = $matches[1];
+        $time = isset($matches[3]) ? $matches[3] : null;
+        $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
+        $resultTimestamp = $translate[$date] + $seconds;
+        return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
+    }
 }
 
 /**
@@ -54,6 +81,7 @@ function getProjects($dbConnection, $user)
 /**
  * Функция получает задачи, id проектов, файл, id и метки для задач (выполнена или нет)
  * @param  boolean $dbConnection результат соединения
+ * @param  array $user даные авторизованного пользователя
  * @return array массив задач и проектов, соответствующих авторизованному пользователю
  */
 function getTasksByProject($dbConnection, $user)
@@ -63,9 +91,10 @@ function getTasksByProject($dbConnection, $user)
 }
 
 /**
- * @param $dbConnection
- * @param $id
- * @param $user
+ * Функция получает задачу
+ * @param $dbConnection результат соединения
+ * @param $id идентификатор задачи
+ * @param $user массив авторизованного пользователя
  * @return array|null
  */
 function getTaskById($dbConnection, $id, $user)
@@ -73,6 +102,18 @@ function getTaskById($dbConnection, $id, $user)
     $sqlGetTasks = "SELECT * FROM tasks WHERE user_id = ? AND id = ?";
     $res = getData($dbConnection, $sqlGetTasks, [$user['id'], $id]);
     return empty($res) ? null : $res[0];
+}
+
+/**
+ * Функция удаляет задачу из базы
+ * @param $dbConnection результат соединения
+ * @param $id идентификатор задачи
+ * @param $user массив авторизованного пользователя
+ */
+function deleteTaskById($dbConnection, $id, $user)
+{
+    $sqlDeleteTasks = "DELETE FROM tasks WHERE user_id = ? AND id = ?";
+    deleteData($dbConnection, $sqlDeleteTasks, [$user['id'], $id]);
 }
 
 /**
@@ -92,10 +133,10 @@ function addUserToDatabase($dbConnection, $resultRegister)
 /**
  * Функция добавляет задачу в базу
  * @param  boolean $dbConnection результат соединения
- * @param  array $resultRegister валидные и не валидные поля
- * @param  array $file путь к файлу если передан
+ * @param  array $resultAddTask валидные и не валидные поля
+ * @param  string $pathFile путь к файлу либо null
+ * @param  array $user данные авторизованного пользователя
  */
-/* ВОт здесь неправильно как-то файл передается */
 function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
 {
     $file = ($pathFile) ? '/upload/' . $pathFile : '';
@@ -108,11 +149,38 @@ function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
     header("Location: /index.php");
     exit();
 }
+/**
+ * Функция копирует задачу
+ * @param  boolean $dbConnection результат соединения
+ * @param  array $task задача для копирования
+ */
+function duplicateTaskToDatabase($dbConnection, $task)
+{
+    $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
+    setData($dbConnection, $sqlAddTask, [$task['user_id'], $task['project_id'], $task['deadline'], $task['name'], $task['file']]);
+    header("Location: /index.php");
+    exit();
+}
+
+/**
+ * Функция добавляет категорию в базу
+ * @param  boolean $dbConnection результат соединения
+ * @param  array $resultCategoryTask валидные и не валидные поля
+ * @param array $user данные авторизованного пользователя
+ */
+function addCategoryToDatabase($dbConnection, $resultCategoryTask, $user)
+{
+    $user_id = $user['id'];
+    $name = $resultCategoryTask['valid']['task'];
+    $sqlAddTask = "INSERT INTO projects(user_id, name) VALUES ( ?, ?)";
+    setData($dbConnection, $sqlAddTask, [$user_id, $name]);
+    header("Location: /index.php");
+    exit();
+}
 
 /**
  * Функция разбивает массив на 2 по ключу и значению
  * @param  array $array массив для преобразования
- * @param string $condition знак для условия обновления
  * @return array , значениями которого я вляются 2 массива,
  * 1 - это строка с плайсхолдерами, 2 строка со значениями для них
  */
@@ -198,6 +266,24 @@ function getData($connectDB, $sql, $data = [])
 }
 
 /**
+ * Функция удаляет данные из базы
+ * @param  boolean $connectDB результат соединения
+ * @param string $sql - sql запрос
+ * @param array $data массив с данными для запроса
+ * @return array $theResult  пустой массив или
+ */
+function deleteData($connectDB, $sql, $data = [])
+{
+    $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
+    if ($stmt) {
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_get_result($stmt);
+        return mysqli_insert_id($connectDB);
+    }
+    return false;
+}
+
+/**
  * Функция устанавливает соединение с базой данных
  * @return mysqli|string соединение если успешно, иначе сообщение об ошибке.
  */
@@ -210,8 +296,8 @@ function setConnection()
 
 /**
  * Функция находит пользователя по email в базе данных
- * @param array $dbConnection соединение с базой данных
  * @param string email электронная почта
+ * @param array $dbConnection соединение с базой данных
  * @return array $user если пользоваетель существует или null
  */
 function searchUserByEmail($email, $dbConnection)

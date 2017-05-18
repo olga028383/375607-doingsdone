@@ -6,6 +6,7 @@ require_once 'functions.php';
 $user = [];
 $bodyClassOverlay = '';
 $modalShow = false;
+$modalShowCategory = false;
 $showAuthenticationForm = false;
 $showPageRegister = false;
 $messageAfterRegistered = false;
@@ -16,8 +17,6 @@ $dbConnection = setConnection();
 if (isset($_GET['register'])) {
     $showPageRegister = true;
 }
-$dataForRegisterTemplate = AddkeysForValidation(['email', 'name', 'password']);
-
 // Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
 if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
     $bodyClassOverlay = 'overlay';
@@ -27,6 +26,8 @@ if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
 if (isset($_GET['login']) && isset($_GET['show_message'])) {
     $messageAfterRegistered = true;
 }
+
+//Валидация формы для автореизации пользователя
 $dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
 if (isset($_POST['sendAuth'])) {
 
@@ -60,7 +61,7 @@ if (is_object($dbConnection) && $user) {
 $tasksToDisplay = [];
 $project = '';
 if (isset($_GET['project'])) {
-    $project = (int) abs(($_GET['project']));
+    $project = (int)abs(($_GET['project']));
     $valID = null;
     foreach ($projectList as $value) {
         if ($value['id'] !== $project) {
@@ -70,7 +71,7 @@ if (isset($_GET['project'])) {
         }
     }
     if ($valID || $project == 0) {
-        $tasksToDisplay = array_filter($taskList, function($task) use ($valID, $project) {
+        $tasksToDisplay = array_filter($taskList, function ($task) use ($valID, $project) {
             return $project == 0 || $valID == $task['project'];
         });
     } else {
@@ -80,6 +81,8 @@ if (isset($_GET['project'])) {
 } else {
     $tasksToDisplay = $taskList;
 }
+
+//Валидация формы добавления задачи для проекта
 $dataFormAddTask = AddkeysForValidation(['task', 'project', 'deadline']);
 // Если пришёл get-параметр add, то покажем форму добавления проекта
 if (isset($_GET['add']) || isset($_POST['send'])) {
@@ -105,6 +108,23 @@ if (isset($_POST['send'])) {
     }
     $dataFormAddTask = $resultAddTask;
 }
+
+// Валидация формы добавления категорий для проекта
+$dataFormAddCategory = AddkeysForValidation(['task']);
+if (isset($_GET['addCategory']) || isset($_POST['sendCategory'])) {
+    $bodyClassOverlay = 'overlay';
+    $modalShowCategory = true;
+}
+if (isset($_POST['sendCategory'])) {
+    $resultAddCategory = validateTaskForm(['task']);
+    if (!$resultAddCategory['error']) {
+        /* Функция добавляет категорию в базу */
+        addCategoryToDatabase($dbConnection, $resultAddCategory, $user);
+        $bodyClassOverlay = '';
+        $modalShowCategory = false;
+    }
+    $dataFormAddCategory = $resultAddCategory;
+}
 //если пришел параметр show_completed создаем куку
 $show_completed = false;
 if (isset($_GET['show_completed'])) {
@@ -113,45 +133,32 @@ if (isset($_GET['show_completed'])) {
 } else if (isset($_COOKIE['show_completed'])) {
     $show_completed = $_COOKIE['show_completed'];
 }
-//Отмечаем задачу как выполненную если пришед параметр complete
-if (isset($_GET['complete'])) {
-    updateForTasksFieldComplete($dbConnection, $_GET['complete']);
-}
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<?= printHead(); ?>
 
-  <head>
-    <meta charset="UTF-8">
-    <title>Дела в Порядке!</title>
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/style.css">
-  </head>
-  <body class=<?= $bodyClassOverlay; ?>>
-    <h1 class="visually-hidden">Дела в порядке</h1>
+<body class=<?= $bodyClassOverlay; ?>>
+<h1 class="visually-hidden">Дела в порядке</h1>
 
-    <div class="page-wrapper">
-      <div class="container container--with-sidebar">
+<div class="page-wrapper">
+    <div class="container container--with-sidebar">
         <?= includeTemplate('header.php', ['user' => $user]); ?>
         <?php
-            if ($showPageRegister) {
-                print(includeTemplate('register.php', $dataForRegisterTemplate));
-            } else {
-                if (!$user) {
-                    print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]));
-                } else {
-                    print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
-                }
-            }
-        ?>
-      </div>
-    </div>
-    <?php
-        print includeTemplate('footer.php', ['user' => $user]);
-        if ($modalShow) {
-            print(includeTemplate('add-project.php', $dataFormAddTask + ['projects' => $projectList]));
+        if (!$user) {
+            print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]));
+        } else {
+            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
         }
-    ?>
-    <script type="text/javascript" src="js/script.js"></script>
-  </body>
-</html>
+        ?>
+    </div>
+</div>
+<?php
+print includeTemplate('footer.php', ['user' => $user]);
+if ($modalShow) {
+    print(includeTemplate('add-project.php', $dataFormAddTask + ['projects' => $projectList]));
+}
+if ($modalShowCategory) {
+    print(includeTemplate('add-category.php', $dataFormAddCategory));
+}
+printEndBodyHtml();
+?>
+
