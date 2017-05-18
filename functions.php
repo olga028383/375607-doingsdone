@@ -1,7 +1,8 @@
 <?php
 
 require_once 'mysql_helper.php';
-/**Функция печатает тег head */
+/* * Функция печатает тег head */
+
 function printHead()
 {
     print("<!DOCTYPE html>
@@ -15,7 +16,8 @@ function printHead()
         </head>");
 }
 
-/**Функция печатает закрывающий тег body, html, скрипты  */
+/* * Функция печатает закрывающий тег body, html, скрипты  */
+
 function printEndBodyHtml()
 {
     print("<script type='text/javascript' src='js/script.js'></script></body></html>");
@@ -53,15 +55,16 @@ function checkForDateCorrected($str)
         return false;
     }
     $date = $matches[1];
-    $time = isset($matches[3]) ? $matches[3] : null;
+    $time = isset($matches[3]) ? str_replace(' в ', '', $matches[3]) : null;
     $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
-    if(isset($translate[$date])){
+    if (isset($translate[$date])) {
         $resultTimestamp = $translate[$date] + $seconds;
-    }else{
-        $resultTimestamp = strtotime($date)+ $seconds;
+    } else {
+        $resultTimestamp = strtotime($date) + $seconds;
     }
     return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
 }
+
 /**
  * Функция получает проекты
  * @param  boolean $dbConnection результат соединения
