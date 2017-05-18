@@ -40,13 +40,11 @@ function checkForDateCorrected($str)
         'Суббота' => strtotime('Saturday'),
         'Воскресенье' => strtotime('Sunday')
     ];
-    $pattern = '(' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
+    $pattern = '((\d{2}\.\d{2}\.\d{4})|' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
     $matches = [];
-    $matchesDataInt = [];
     $matched = preg_match("/^$pattern$/", $str, $matches);
-    $indData = preg_match("/^(\d{2}\.\d{2}\.\d{4})$/", $str, $matchesDataInt);
-
-    if (!$matched && !$indData) {
+    var_dump($matches);
+    if (!$matched) {
         return false;
     }
     if (isset($matches[4]) && (int)$matches[4] > 23) {
@@ -55,17 +53,16 @@ function checkForDateCorrected($str)
     if (isset($matches[5]) && (int)$matches[5] > 59) {
         return false;
     }
-    if($indData){
-        return strtotime($matchesDataInt[1]) >= strtotime('24:00:00') ? strtotime($matchesDataInt[1] . date('h:i:s')) : false;
-    }else {
-        $date = $matches[1];
-        $time = isset($matches[3]) ? $matches[3] : null;
-        $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
+    $date = $matches[1];
+    $time = isset($matches[3]) ? $matches[3] : null;
+    $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
+    if(isset($translate[$date])){
         $resultTimestamp = $translate[$date] + $seconds;
-        return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
+    }else{
+        $resultTimestamp = strtotime($date);
     }
+    return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
 }
-
 /**
  * Функция получает проекты
  * @param  boolean $dbConnection результат соединения
@@ -146,9 +143,8 @@ function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
     $name = $resultAddTask['valid']['task'];
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
     setData($dbConnection, $sqlAddTask, [$user_id, $project_id, $deadline, $name, $file]);
-    header("Location: /index.php");
-    exit();
 }
+
 /**
  * Функция копирует задачу
  * @param  boolean $dbConnection результат соединения
@@ -158,8 +154,6 @@ function duplicateTaskToDatabase($dbConnection, $task)
 {
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
     setData($dbConnection, $sqlAddTask, [$task['user_id'], $task['project_id'], $task['deadline'], $task['name'], $task['file']]);
-    header("Location: /index.php");
-    exit();
 }
 
 /**
