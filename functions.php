@@ -43,7 +43,6 @@ function checkForDateCorrected($str)
     $pattern = '((\d{2}\.\d{2}\.\d{4})|' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
     $matches = [];
     $matched = preg_match("/^$pattern$/", $str, $matches);
-    var_dump($matches);
     if (!$matched) {
         return false;
     }
@@ -59,7 +58,7 @@ function checkForDateCorrected($str)
     if(isset($translate[$date])){
         $resultTimestamp = $translate[$date] + $seconds;
     }else{
-        $resultTimestamp = strtotime($date);
+        $resultTimestamp = strtotime($date)+ $seconds;
     }
     return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
 }
