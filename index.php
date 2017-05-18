@@ -105,6 +105,8 @@ if (isset($_POST['send'])) {
         addTaskToDatabase($dbConnection, $resultAddTask, $path, $user);
         $bodyClassOverlay = '';
         $modalShow = false;
+        header("Location: /index.php");
+        exit();
     }
     $dataFormAddTask = $resultAddTask;
 }

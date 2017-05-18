@@ -48,14 +48,14 @@ function checkForDateCorrected($str)
     if (!$matched) {
         return false;
     }
-    if (isset($matches[4]) && (int)$matches[4] > 23) {
+    if (isset($matches[5]) && (int)$matches[5] > 23) {
         return false;
     }
-    if (isset($matches[5]) && (int)$matches[5] > 59) {
+    if (isset($matches[6]) && (int)$matches[6] > 59) {
         return false;
     }
     $date = $matches[1];
-    $time = isset($matches[3]) ? str_replace(' в ', '', $matches[3]) : null;
+    $time = isset($matches[4]) ? str_replace(' в ', '', $matches[4]) : null;
     $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
     if (isset($translate[$date])) {
         $resultTimestamp = $translate[$date] + $seconds;
