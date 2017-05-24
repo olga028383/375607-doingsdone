@@ -22,3 +22,4 @@ if (empty($task)) {
 // Таск наш, помечаем как выполненный, редиректим в начало
 updateData($dbConnection, 'tasks', ['complete = ' => date("Y-m-d H:i:s", time())], ['id =' => (int)$id]);
 header("Location: /index.php");
+
