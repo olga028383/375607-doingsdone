@@ -1,7 +1,8 @@
 <?
 session_start();
 error_reporting(E_ALL);
-require_once 'functions.php';
+
+require_once 'init.php';
 /* Инициализация переменных */
 $user = [];
 $bodyClassOverlay = '';
@@ -12,7 +13,7 @@ $showPageRegister = false;
 $messageAfterRegistered = false;
 $taskList = [];
 //Соединение с б/д
-$dbConnection = setConnection();
+$dbConnection = Database::instance();
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
 if (isset($_GET['register'])) {
     $showPageRegister = true;
@@ -27,7 +28,7 @@ if (isset($_GET['login']) && isset($_GET['show_message'])) {
     $messageAfterRegistered = true;
 }
 
-//Валидация формы для автореизации пользователя
+//Валидация формы для авторизации пользователя
 $dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
 if (isset($_POST['sendAuth'])) {
 
@@ -45,6 +46,7 @@ if (isset($_POST['sendAuth'])) {
 
     $dataForHeaderTemplate = $resultAuth['output'];
 }
+
 
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
 $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
@@ -146,7 +148,7 @@ if (isset($_GET['show_completed'])) {
         <?= includeTemplate('header.php', ['user' => $user]); ?>
         <?php
         if (!$user) {
-            print(includeTemplate('guest.php', $dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]));
+            print(includeTemplate('guest.php', []/*$dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]*/));
         } else {
             print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
         }

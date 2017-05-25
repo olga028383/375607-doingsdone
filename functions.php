@@ -278,18 +278,6 @@ function deleteData($connectDB, $sql, $data = [])
     }
     return false;
 }
-
-/**
- * Функция устанавливает соединение с базой данных
- * @return mysqli|string соединение если успешно, иначе сообщение об ошибке.
- */
-function setConnection()
-{
-    include 'config.php';
-    $link = mysqli_connect($DBCONFIG['host'], $DBCONFIG['user'], $DBCONFIG['password'], $DBCONFIG['database']);
-    return ($link) ? $link : 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
-}
-
 /**
  * Функция находит пользователя по email в базе данных
  * @param string email электронная почта
