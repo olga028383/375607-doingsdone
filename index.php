@@ -4,7 +4,6 @@ error_reporting(E_ALL);
 
 require_once 'init.php';
 /* Инициализация переменных */
-$user = [];
 $bodyClassOverlay = '';
 $modalShow = false;
 $modalShowCategory = false;
@@ -12,51 +11,44 @@ $showAuthenticationForm = false;
 $showPageRegister = false;
 $messageAfterRegistered = false;
 $taskList = [];
-//Соединение с б/д
-$dbConnection = Database::instance();
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
 if (isset($_GET['register'])) {
     $showPageRegister = true;
-}
-// Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
-if (isset($_GET['login']) || isset($_POST['sendAuth'])) {
-    $bodyClassOverlay = 'overlay';
-    $showAuthenticationForm = true;
 }
 //Если пользователь только что авторизовался, то покажем ему сообщение
 if (isset($_GET['login']) && isset($_GET['show_message'])) {
     $messageAfterRegistered = true;
 }
 
-//Валидация формы для авторизации пользователя
-$dataForHeaderTemplate = AddkeysForValidation(['email', 'password']);
-if (isset($_POST['sendAuth'])) {
-
-    $resultAuth = validateLoginForm($dbConnection, ['email', 'password']);
-
-    if (!$resultAuth['error']) {
-        if (password_verify($_POST['password'], $resultAuth['user'][0]['password'])) {
-            $_SESSION['user'] = $resultAuth['user'][0];
+//создаем объект для формы ауторизации
+$authForm = new AuthForm();
+if ($authForm->isSubmitted()) {
+    $authForm->validate();
+    if ($authForm->isValid()) {
+        if (password_verify($authForm->getDataField('password'), $authForm->user[0]['password'])) {
+            $_SESSION['user'] = $authForm->user[0];
             header("Location: /index.php");
             exit();
         } else {
             $resultAuth['output']['errors']['password'] = true;
         }
     }
-
-    $dataForHeaderTemplate = $resultAuth['output'];
 }
 
-
+// Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
+if (isset($_GET['login']) || $authForm->isSubmitted()) {
+    $bodyClassOverlay = 'overlay';
+    $showAuthenticationForm = true;
+}
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
 $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
 
 /* Получаем  задачи и проекты после того как пользователь авторизован */
-if (is_object($dbConnection) && $user) {
+if (is_object(Database::instance()->resultConnection()) && $user) {
     /* Получаем массив проектов из базы данных, и добавляет 1 значение "Все" */
-    $projectList = getProjects($dbConnection, $user);
+    $projectList = getProjects($user);
     /* Получаем массив задач из базы */
-    $taskList = getTasksByProject($dbConnection, $user);
+    $taskList = getTasksByProject($user);
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
@@ -83,17 +75,15 @@ if (isset($_GET['project'])) {
 } else {
     $tasksToDisplay = $taskList;
 }
-
-//Валидация формы добавления задачи для проекта
-$dataFormAddTask = AddkeysForValidation(['task', 'project', 'deadline']);
+$taskForm = new AddTaskForm();
 // Если пришёл get-параметр add, то покажем форму добавления проекта
-if (isset($_GET['add']) || isset($_POST['send'])) {
+if (isset($_GET['add']) || $taskForm->isSubmitted()) {
     $bodyClassOverlay = 'overlay';
     $modalShow = true;
 }
-if (isset($_POST['send'])) {
-    $resultAddTask = validateTaskForm(['task', 'project', 'deadline']);
-    if (!$resultAddTask['error']) {
+if ($taskForm->isSubmitted()) {
+    $taskForm->validate();
+    if ($taskForm->isValid()) {
         $file = null;
         $path = null;
         if (isset($_FILES['preview'])) {
@@ -104,30 +94,28 @@ if (isset($_POST['send'])) {
             $path = $file['name'];
         }
         /* Функция добавляет задачу в базу */
-        addTaskToDatabase($dbConnection, $resultAddTask, $path, $user);
+        addTaskToDatabase($taskForm->getformData(), $path, $user);
         $bodyClassOverlay = '';
         $modalShow = false;
         header("Location: /index.php");
         exit();
     }
-    $dataFormAddTask = $resultAddTask;
 }
 
 // Валидация формы добавления категорий для проекта
-$dataFormAddCategory = AddkeysForValidation(['task']);
-if (isset($_GET['addCategory']) || isset($_POST['sendCategory'])) {
+$categotyForm = new AddCategoryForm();
+if (isset($_GET['addCategory']) || $categotyForm->isSubmitted()) {
     $bodyClassOverlay = 'overlay';
     $modalShowCategory = true;
 }
-if (isset($_POST['sendCategory'])) {
-    $resultAddCategory = validateTaskForm(['task']);
-    if (!$resultAddCategory['error']) {
+if ($categotyForm->isSubmitted()) {
+    $categotyForm->validate();
+    if ($categotyForm->isValid()) {
         /* Функция добавляет категорию в базу */
-        addCategoryToDatabase($dbConnection, $resultAddCategory, $user);
+        addCategoryToDatabase($categoryForm->getformData(), $user);
         $bodyClassOverlay = '';
         $modalShowCategory = false;
     }
-    $dataFormAddCategory = $resultAddCategory;
 }
 //если пришел параметр show_completed создаем куку
 $show_completed = false;
@@ -148,7 +136,7 @@ if (isset($_GET['show_completed'])) {
         <?= includeTemplate('header.php', ['user' => $user]); ?>
         <?php
         if (!$user) {
-            print(includeTemplate('guest.php', []/*$dataForHeaderTemplate + ['showAuthenticationForm' => $showAuthenticationForm] + ['messageAfterRegistered' => $messageAfterRegistered]*/));
+            print(includeTemplate('guest.php', ['showAuthenticationForm' => $showAuthenticationForm, 'form' => $authForm, 'messageAfterRegistered' => $messageAfterRegistered]));
         } else {
             print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
         }
@@ -158,10 +146,10 @@ if (isset($_GET['show_completed'])) {
 <?php
 print includeTemplate('footer.php', ['user' => $user]);
 if ($modalShow) {
-    print(includeTemplate('add-project.php', $dataFormAddTask + ['projects' => $projectList]));
+    print(includeTemplate('add-project.php', ['projects' => $projectList, 'form' => $taskForm]));
 }
 if ($modalShowCategory) {
-    print(includeTemplate('add-category.php', $dataFormAddCategory));
+    print(includeTemplate('add-category.php', ['form' => $categotyForm]));
 }
 printEndBodyHtml();
 ?>

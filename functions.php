@@ -67,109 +67,88 @@ function checkForDateCorrected($str)
 
 /**
  * Функция получает проекты
- * @param  boolean $dbConnection результат соединения
  * @param  array $user массив с данными о пользователе
  * @return array массив проектов из базы, соответствующий авторизованному пользователю
  */
-function getProjects($dbConnection, $user)
+function getProjects($user)
 {
     $sql = "SELECT id, name FROM `projects` WHERE user_id = ?";
-    return getData($dbConnection, $sql, [$user['id']]);
+    return Database::instance()->getData($sql, [$user['id']]);
 }
 
 /**
  * Функция получает задачи, id проектов, файл, id и метки для задач (выполнена или нет)
- * @param  boolean $dbConnection результат соединения
  * @param  array $user даные авторизованного пользователя
  * @return array массив задач и проектов, соответствующих авторизованному пользователю
  */
-function getTasksByProject($dbConnection, $user)
+function getTasksByProject($user)
 {
     $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ?";
-    return getData($dbConnection, $sqlGetTasks, [$user['id']]);
+    return Database::instance()->getData($sqlGetTasks, [$user['id']]);
 }
 
 /**
  * Функция получает задачу
- * @param $dbConnection результат соединения
  * @param $id идентификатор задачи
  * @param $user массив авторизованного пользователя
  * @return array|null
  */
-function getTaskById($dbConnection, $id, $user)
+function getTaskById($id, $user)
 {
     $sqlGetTasks = "SELECT * FROM tasks WHERE user_id = ? AND id = ?";
-    $res = getData($dbConnection, $sqlGetTasks, [$user['id'], $id]);
+    $res = Database::instance()->getData($sqlGetTasks, [$user['id'], $id]);
     return empty($res) ? null : $res[0];
 }
 
 /**
  * Функция удаляет задачу из базы
- * @param $dbConnection результат соединения
  * @param $id идентификатор задачи
  * @param $user массив авторизованного пользователя
  */
-function deleteTaskById($dbConnection, $id, $user)
+function deleteTaskById($id, $user)
 {
     $sqlDeleteTasks = "DELETE FROM tasks WHERE user_id = ? AND id = ?";
-    deleteData($dbConnection, $sqlDeleteTasks, [$user['id'], $id]);
-}
-
-/**
- * Функция добавляет пользователей в базу
- * @param  boolean $dbConnection результат соединения
- * @param  array $resultRegister валидные и не валидные поля
- */
-function addUserToDatabase($dbConnection, $resultRegister)
-{
-    $sqlAddUser = "INSERT INTO user(registered, email, name, password) VALUES (NOW(), ?, ?, ?)";
-    setData($dbConnection, $sqlAddUser, [
-        $resultRegister['output']['valid']['email'],
-        $resultRegister['output']['valid']['name'],
-        password_hash($resultRegister['output']['valid']['password'], PASSWORD_DEFAULT)]);
+    Database::instance()->deleteData($sqlDeleteTasks, [$user['id'], $id]);
 }
 
 /**
  * Функция добавляет задачу в базу
- * @param  boolean $dbConnection результат соединения
  * @param  array $resultAddTask валидные и не валидные поля
  * @param  string $pathFile путь к файлу либо null
  * @param  array $user данные авторизованного пользователя
  */
-function addTaskToDatabase($dbConnection, $resultAddTask, $pathFile, $user)
+function addTaskToDatabase($resultAddTask, $pathFile, $user)
 {
     $file = ($pathFile) ? '/upload/' . $pathFile : '';
     $user_id = $user['id'];
-    $project_id = (int)$resultAddTask['valid']['project'];
-    $deadline = date("Y-m-d H:i:s", checkForDateCorrected($resultAddTask['valid']['deadline']));
-    $name = $resultAddTask['valid']['task'];
+    $project_id = (int)$resultAddTask['project'];
+    $deadline = date("Y-m-d H:i:s", checkForDateCorrected($resultAddTask['deadline']));
+    $name = $resultAddTask['task'];
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
-    setData($dbConnection, $sqlAddTask, [$user_id, $project_id, $deadline, $name, $file]);
+    Database::instance()->setData($sqlAddTask, [$user_id, $project_id, $deadline, $name, $file]);
 }
 
 /**
  * Функция копирует задачу
- * @param  boolean $dbConnection результат соединения
  * @param  array $task задача для копирования
  */
-function duplicateTaskToDatabase($dbConnection, $task)
+function duplicateTaskToDatabase($task)
 {
     $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
-    setData($dbConnection, $sqlAddTask, [$task['user_id'], $task['project_id'], $task['deadline'], $task['name'], $task['file']]);
+    Database::instance()->setData($sqlAddTask, [$task['user_id'], $task['project_id'], $task['deadline'], $task['name'], $task['file']]);
 }
 
 /**
  * Функция добавляет категорию в базу
- * @param  boolean $dbConnection результат соединения
  * @param  array $resultCategoryTask валидные и не валидные поля
  * @param array $user данные авторизованного пользователя
  */
-function addCategoryToDatabase($dbConnection, $resultCategoryTask, $user)
+function addCategoryToDatabase($resultCategoryTask, $user)
 {
     $user_id = $user['id'];
     $name = $resultCategoryTask['valid']['task'];
     $sqlAddTask = "INSERT INTO projects(user_id, name) VALUES ( ?, ?)";
-    setData($dbConnection, $sqlAddTask, [$user_id, $name]);
+    Database::instance()->setData($sqlAddTask, [$user_id, $name]);
     header("Location: /index.php");
     exit();
 }
@@ -193,162 +172,6 @@ function convertAssocDataToWhereStmt($array = [])
 }
 
 /**
- * Функция обновляет данные в базе
- * @param  boolean $connectDB результат соединения
- * @param string $nameTable -  имя таблицы
- * @param array $updateData ассоциативный массив, где ключ имя поля, значание данные для этого поля
- * @param array $where ассоциативный массив для условия обновления
- * @return int число обновленных записей и false при ошибке
- */
-function updateData($connectDB, $nameTable, $updateData = [], $where = [])
-{
-    $setPoints = convertAssocDataToWhereStmt($updateData);
-    $condition = convertAssocDataToWhereStmt($where);
-
-    $sql = 'UPDATE ' . $nameTable . ' SET ' . $setPoints[0] . ' WHERE ' . $condition[0];
-    $value = array_merge($setPoints[1], $condition[1]);
-    $stmt = db_get_prepare_stmt($connectDB, $sql, $value);
-    if ($stmt) {
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        return mysqli_affected_rows($connectDB);
-    }
-    return false;
-}
-
-/**
- * Функция добавляет данные в базу
- * @param  boolean $connectDB результат соединения
- * @param string $sql - sql запрос
- * @param array $data массив с данными для запроса
- * @return int последняя добавленная запись и false  при ошибке
- */
-function setData($connectDB, $sql, $data = [])
-{
-    $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
-    if ($stmt) {
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        return mysqli_insert_id($connectDB);
-    }
-    return false;
-}
-
-/**
- * Функция получает данные из базы
- * @param  boolean $connectDB результат соединения
- * @param string $sql - sql запрос
- * @param array $data массив с данными для запроса
- * @return array $theResult  пустой массив или
- */
-function getData($connectDB, $sql, $data = [])
-{
-    $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
-    if ($stmt) {
-        mysqli_stmt_execute($stmt);
-
-        $result = mysqli_stmt_get_result($stmt);
-        if (!mysqli_num_rows($result)) {
-            return [];
-        }
-        $theResult = [];
-        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            $theResult[] = $row;
-        }
-        mysqli_stmt_close($stmt);
-        return $theResult;
-    }
-    return [];
-}
-
-/**
- * Функция удаляет данные из базы
- * @param  boolean $connectDB результат соединения
- * @param string $sql - sql запрос
- * @param array $data массив с данными для запроса
- * @return array $theResult  пустой массив или
- */
-function deleteData($connectDB, $sql, $data = [])
-{
-    $stmt = db_get_prepare_stmt($connectDB, $sql, $data);
-    if ($stmt) {
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_get_result($stmt);
-        return mysqli_insert_id($connectDB);
-    }
-    return false;
-}
-/**
- * Функция находит пользователя по email в базе данных
- * @param string email электронная почта
- * @param array $dbConnection соединение с базой данных
- * @return array $user если пользоваетель существует или null
- */
-function searchUserByEmail($email, $dbConnection)
-{
-    $sql = "SELECT id, email, password, name FROM user WHERE email = ?";
-    return getData($dbConnection, $sql, [$email]);
-}
-
-/**
- * Функция проверяет наличие заполненных полей и записывет значение в массив валидации,
- * @param array $fields поля которые требуется проверять на валидность
- * @param array $dbConnection соединение с б/д
- * @return array[
- *      'error'=>bool,
- *      'output' => array[
- *          'valid' => array,
- *          'errors' => array
- *      ]
- *      'user' => array
- */
-function validateLoginForm($dbConnection, $fields)
-{
-    $errors = false;
-    $user = null;
-    $output = AddkeysForValidation($fields);
-    $user = searchUserByEmail($_POST['email'], $dbConnection);
-    foreach ($fields as $name) {
-        //Для поля email одна проверка, для отальных другая
-        $validateTestFields = ($name == 'email') ?
-            filter_var(sanitizeInput($_POST[$name]), FILTER_VALIDATE_EMAIL) :
-            sanitizeInput($_POST[$name]);
-        if (!empty($_POST[$name]) && $validateTestFields) {
-            $output['valid'][$name] = $_POST[$name];
-        } else {
-            $output['errors'][$name] = true;
-            $errors = true;
-        }
-    }
-    return ['error' => $errors, 'output' => $output, 'user' => $user];
-}
-
-/**
- * Функция проверяет наличие заполненных полей и записывет значение в массив валидации
- * @param array $fields поля которые требуется проверять на валидность
- * @return array[
- *      'error'=>bool,
- *      'valid' => array,
- *      'errors' => array
- */
-function validateTaskForm($fields)
-{
-    $errors = false;
-    $output = AddkeysForValidation($fields);
-    foreach ($fields as $name) {
-        //Для поля deadline одна проверка, для отальных другая
-        $testValuePost = ($name == 'deadline') ? checkForDateCorrected(sanitizeInput($_POST[$name])) : sanitizeInput($_POST[$name]);
-        if (!empty($_POST[$name]) && $testValuePost) {
-            $output['valid'][$name] = $_POST[$name];
-        } else {
-            $output['errors'][$name] = true;
-            $errors = true;
-        }
-    }
-    return ['error' => $errors, 'valid' => $output['valid'], 'errors' => $output['errors']];
-}
-
-/**
  * Функция инициализирует массивы валидных и не валидных полей и наполняет ключами из массива ожидаемых полей post- массива
  * @param array $keysField копируемый массив
  * @return возвращает заполненный массив
@@ -365,17 +188,12 @@ function AddkeysForValidation($keysField)
 
 /**
  * Функция выводит блок с ошибкой.
- * @param array $errors - массив с ошибками
- * @param string $name
+ * @param string $text
  */
-function addRequiredSpan($errors, $name, $text = '')
+function addRequiredSpan($text = '')
 {
-    if ($errors[$name]) {
-        if ($text) {
-            print("<p class='form__message'>$text</p>");
-        } else {
-            print("<span>Обязательное поле</span>");
-        }
+    if ($text) {
+        print("<p class='form__message'>$text</p>");
     }
 }
 

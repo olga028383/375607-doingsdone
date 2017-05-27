@@ -56,6 +56,15 @@ class BaseForm{
         return $this->formData;
     }
     /**
+     * Возвращает данные конкретного поля
+     * @param $field  поле, которое требуется вернуть
+     * @return string
+     */
+    public function getDataField($field)
+    {
+        return $this->formData[$field];
+    }
+    /**
      * Возвращает тект ошибки
      * @param $field  поле для которого возвращаем текст ошибки
      * @return string
@@ -110,17 +119,16 @@ class BaseForm{
      * @param array $fields Поля для проверки
      * @return bool Результат проверки
      */
-    protected function runRequireValidator($fields)
+    protected function runRequiredValidator($fields)
     {
         $result = true;
         foreach($fields as $key=>$value){
             if(!$this->formData[$value]){
                 $result = false;
-
                 $this->errors[$value] = 'Это поле должно быть заполнено';
             }
-            return $result;
         }
+        return $result;
     }
     /**
      * Заполняет данные данными из формы
