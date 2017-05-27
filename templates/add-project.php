@@ -13,18 +13,24 @@
  * @param type $name
  * @return string
  */
+$form = $templateData['form'];
+$valid = $form->getformData();
 function getFormValue($templateData, $name)
 {
+    $isField = $templateData ? $templateData : '';
+    if(!$isField){
+        return;
+    }
    if ($name == 'project') {
         $result = '0';
-        if ($templateData['valid']['project']) {
-            $result = $templateData['valid']['project'];
+        if ($templateData['project']) {
+            $result = $templateData['project'];
             
         }
         return $result;
     }
     // Для остальных полей берем просто что пришло в посте
-    return $templateData['valid'][$name];
+    return $templateData[$name];
 }
 ?>
 <div class="modal">
@@ -35,22 +41,22 @@ function getFormValue($templateData, $name)
   <form class="form" class="" action="/index.php" method="post" enctype="multipart/form-data">
     <div class="form__row">
       <label class="form__label" for="task">Название <sup>*</sup></label>
-<?= addRequiredSpan($templateData['errors'], 'task'); ?>
-      <input class="form__input <?= setClassError($templateData['errors'], 'task'); ?>"
+        <?= addRequiredSpan($form->getError('task')); ?>
+      <input class="form__input <?php if ($form->getError('task')): ?>form__input--error <?php endif;?>"
              type="text"
-             name="task" 
+             name="task[task]"
              id="name" 
-             value="<?= getFormValue($templateData, 'task'); ?>" 
+             value="<?=getFormValue($valid, 'task') ?>"
              placeholder="Введите название">
     </div>
 
     <div class="form__row">
       <label class="form__label" for="project">Проект <sup>*</sup></label>
-<?= addRequiredSpan($templateData['errors'], 'project'); ?>
+        <?= addRequiredSpan($form->getError('project')); ?>
 
-      <select class="form__input form__input--select  <?= setClassError($templateData['errors'], 'project'); ?>" name="project" id="project">
+      <select class="form__input form__input--select <?php if ($form->getError('project')): ?>form__input--error <?php endif;?>" name="task[project]" id="project">
         <?php
-        $selectedValue = getFormValue($templateData, 'project');
+        $selectedValue = getFormValue($valid, 'project');
         $allOptions = array_merge([['id' =>0,'name' =>'Выберите проект']], $templateData['projects']);
         foreach ($allOptions as $value => $option) {
             $selected = $option['id'] == $selectedValue ? 'selected' : '';
@@ -61,13 +67,13 @@ function getFormValue($templateData, $name)
     </div>
 
     <div class="form__row">
-      <label class="form__label" for="date">Дата выполнения <sup>*</sup></label>
-<?= addRequiredSpan($templateData['errors'], 'deadline'); ?>
-      <input class="form__input form__input--date <?= setClassError($templateData['errors'], 'deadline'); ?>" 
+      <label class="form__label" for="deadline">Дата выполнения <sup>*</sup></label>
+        <?= addRequiredSpan($form->getError('deadline')); ?>
+      <input class="form__input form__input--date <?php if ($form->getError('deadline')): ?>form__input--error <?php endif;?>"
              type="text" 
-             name="deadline" 
+             name="task[deadline]"
              id="deadline" 
-             value="<?= getFormValue($templateData, 'deadline'); ?>" 
+             value="<?=getFormValue($valid, 'deadline') ?>"
              placeholder="Введите дату в формате ДД.ММ.ГГГГ">
     </div>
 
@@ -75,7 +81,7 @@ function getFormValue($templateData, $name)
       <label class="form__label" for="file">Файл</label>
 
       <div class="form__input-file">
-        <input class="visually-hidden" type="file" name="preview" id="preview" value="">
+        <input class="visually-hidden" type="file" name="task[preview]" id="preview" value="">
 
         <label class="button button--transparent" for="preview">
           <span>Выберите файл</span>
@@ -84,7 +90,7 @@ function getFormValue($templateData, $name)
     </div>
 
     <div class="form__row form__row--controls">
-      <input class="button" type="submit" name="send" value="Добавить">
+      <input class="button" type="submit" value="Добавить">
     </div>
   </form>
 </div>

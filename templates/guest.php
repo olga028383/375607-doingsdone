@@ -1,10 +1,10 @@
 <?php
 /**
- * Шаблон принимает массив параметров,
- * array $templateData['errors'] содержит массив ошибок для каждого поля,
- * array $templateData['valid'] содержит массив заполненных полей
- * bool $templateData['showAuthenticationForm']
+ * Шаблон принимает объект $authForm,
  */
+$form = $templateData['form'];
+$valid = $form->getformData();
+
 $showModalAuth = '';
 $messageAfterRegistered = '';
 if (!$templateData['showAuthenticationForm']) {
@@ -37,28 +37,26 @@ if ($templateData['messageAfterRegistered']) {
   <form class="form" class="" action="index.php" method="post">
     <div class="form__row">
       <label class="form__label" for="email">E-mail <sup>*</sup></label>
-
-      <input class="form__input <?= setClassError($templateData['errors'], 'email'); ?>" 
+        <?= addRequiredSpan($form->getError('email')); ?>
+      <input class="form__input <?php if ($form->getError('email')): ?>form__input--error <?php endif;?>"
              type="text" 
-             name="email" 
+             name="auth[email]"
              id="email" 
-             value="<?= $templateData['valid']['email']; ?>" 
+             value="<?php $valid ? print(htmlspecialchars($valid['email'])) : ''; ?>"
              placeholder="Введите e-mail">
-
-      <?= addRequiredSpan($templateData['errors'], 'email', 'E-mail введён некорректно'); ?>
 
     </div>
 
     <div class="form__row">
       <label class="form__label" for="password">Пароль <sup>*</sup></label>
-
-      <input class="form__input <?= setClassError($templateData['errors'], 'password'); ?>"
-             type="password" name="password" 
+        <?= addRequiredSpan($form->getError('password')); ?>
+      <input class="form__input <?php if ($form->getError('password')): ?>form__input--error <?php endif;?>"
+             type="password"
+             name="auth[password]"
              id="password"
-             value="<?= $templateData['valid']['password']; ?>" 
+             value="<?php $valid ? print(htmlspecialchars($valid['password'])) : ''; ?>"
              placeholder="Введите пароль">
 
-      <? addRequiredSpan($templateData['errors'], 'password', 'Пароль введён некорректно'); ?>
     </div>
 
     <div class="form__row">
@@ -69,7 +67,7 @@ if ($templateData['messageAfterRegistered']) {
     </div>
 
     <div class="form__row form__row--controls">
-      <input class="button" type="submit" name="sendAuth" value="Войти">
+      <input class="button" type="submit" value="Войти">
     </div>
   </form>
 </div>

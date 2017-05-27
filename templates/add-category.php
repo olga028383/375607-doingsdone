@@ -5,6 +5,8 @@
  * array $templateData['valid'] массив валидных полей
  * array $templateData['projects'] массив проектов для поля select
  */
+$form = $templateData['form'];
+$valid = $form->getformData();
 ?>
 <div class="modal">
     <a href="/" class="modal__close">Закрыть</a>
@@ -13,17 +15,17 @@
 
     <form class="form" class="" action="/index.php" method="post">
         <div class="form__row">
-            <label class="form__label" for="task">Название <sup>*</sup></label>
-            <?= addRequiredSpan($templateData['errors'], 'task'); ?>
-            <input class="form__input <?= setClassError($templateData['errors'], 'task'); ?>"
+            <label class="form__label" for="category">Название <sup>*</sup></label>
+            <?= addRequiredSpan($form->getError('category')); ?>
+            <input class="form__input <?php if ($form->getError('category')): ?>form__input--error <?php endif;?>"
                    type="text"
-                   name="task"
+                   name="category[category]"
                    id="name"
-                   value="<?= $templateData['valid']['task'];?>"
+                   value="<?php $valid ? print(htmlspecialchars($valid['category'])) : ''; ?>"
                    placeholder="Введите название">
         </div>
         <div class="form__row ">
-            <input class="button" type="submit" name="sendCategory" value="Добавить">
+            <input class="button" type="submit" value="Добавить">
         </div>
     </form>
 </div>
