@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * Функция добавляет категорию в базу
  * @param  array $resultCategoryTask валидные и не валидные поля
@@ -13,8 +11,6 @@ function addProject($resultCategoryTask, $user)
     $sqlAddTask = "INSERT INTO projects(user_id, name) VALUES ( ?, ?)";
     Database::instance()->setData($sqlAddTask, [$user_id, $name]);
 }
-
-
 
 /**
  * Функция получает проекты
