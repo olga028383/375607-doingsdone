@@ -48,7 +48,15 @@ if (is_object(Database::instance()->resultConnection()) && $user) {
     /* Получаем массив проектов из базы данных, и добавляет 1 значение "Все" */
     $projectList = getProjects($user);
     /* Получаем массив задач из базы */
-    $taskList = getTasksByProject($user);
+    if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
+        $query = trim($_GET['search']);
+        $taskList = getTasksByProjectOnRequest($user, $query);
+    } else if (isset($_GET['filter'])) {
+        $filter = sanitizeInput($_GET['filter']);
+        $taskList = getTasksByProjectOnRequestFilter($user, $filter);
+    } else {
+        $taskList = getTasksByProject($user);
+    }
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту

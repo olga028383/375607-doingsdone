@@ -35,7 +35,9 @@ class Database
     {
         include 'config.php';
         $this->link = mysqli_connect($DBCONFIG['host'], $DBCONFIG['user'], $DBCONFIG['password'], $DBCONFIG['database']);
-        return ($this->link) ? $this->link : $this->error = 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
+        if(!$this->link){
+            $this->error = 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
+        }
     }
 
     /**
@@ -67,7 +69,6 @@ class Database
 
     /**
      * Функция обновляет данные в базе
-     * @param  boolean $connectDB результат соединения
      * @param string $nameTable -  имя таблицы
      * @param array $updateData ассоциативный массив, где ключ имя поля, значание данные для этого поля
      * @param array $where ассоциативный массив для условия обновления

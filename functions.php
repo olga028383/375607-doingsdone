@@ -65,6 +65,7 @@ function checkForDateCorrected($str)
     return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
 }
 
+
 /**
  * Функция получает проекты
  * @param  array $user массив с данными о пользователе
@@ -85,6 +86,49 @@ function getTasksByProject($user)
 {
     $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ?";
     return Database::instance()->getData($sqlGetTasks, [$user['id']]);
+}
+
+/**
+ * Функция получает задачи, id проектов, файл, id и метки для задач (выполнена или нет) по поиску
+ * @param  array $user даные авторизованного пользователя
+ * @param  array $query запрос поиска
+ * @return array массив задач и проектов, соответствующих авторизованному пользователю
+ */
+function getTasksByProjectOnRequest($user, $query)
+{
+    $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ? AND `name` LIKE ?";
+    return Database::instance()->getData($sqlGetTasks, [$user['id'], "%$query%"]);
+}
+
+/**
+ * Функция получает задачи, id проектов, файл, id и метки для задач (выполнена или нет) по поиску
+ * @param  array $user даные авторизованного пользователя
+ * @param  array $query запрос поиска
+ * @return array массив задач и проектов, соответствующих авторизованному пользователю
+ */
+function getTasksByProjectOnRequestFilter($user, $query)
+{
+    $param = '';
+    $condition = '';
+    switch ($query) {
+        case 'today' :
+            $param = "AND deadline LIKE ?";
+            $time = date('Y-m-d', time());
+            $condition = "%$time%";
+            break;
+        case 'tomorrow':
+            $param = "AND deadline LIKE ?";
+            $time = date('Y-m-d', strtotime("tomorrow"));
+            $condition = "%$time%";
+            break;
+        case 'overdue':
+            $param = "AND deadline < ?";
+            $time = date('Y-m-d H:i:s', strtotime('00:00:00'));
+            $condition = "$time";
+            break;
+    }
+    $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ? " . $param;
+    return Database::instance()->getData($sqlGetTasks, [$user['id'], $condition]);
 }
 
 /**

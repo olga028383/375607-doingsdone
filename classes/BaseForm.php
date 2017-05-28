@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Базовый класс для работы с формами
  */
-class BaseForm{
+class BaseForm
+{
     /**
      * @var array $fields Список имен полей формы
      */
@@ -23,6 +25,7 @@ class BaseForm{
      * @var string $formName Имя формы
      */
     protected $formName;
+
     /**
      * BaseForm constructor
      * @param array $data Данные формы
@@ -31,6 +34,7 @@ class BaseForm{
     {
         $this->fillFormData($data);
     }
+
     /**
      * Проверяем что форма была отправлена
      * @return bool
@@ -39,14 +43,16 @@ class BaseForm{
     {
         return isset($_POST[$this->formName]);
     }
+
     /**
      * Проверяем были ли ошибки валидации
      * @return bool
      */
     public function isValid()
     {
-        return  count($this->errors) === 0;
+        return empty($errors);
     }
+
     /**
      * Возвращает данные отправленные из формы
      * @return array
@@ -55,6 +61,7 @@ class BaseForm{
     {
         return $this->formData;
     }
+
     /**
      * Возвращает данные конкретного поля
      * @param $field  поле, которое требуется вернуть
@@ -64,6 +71,7 @@ class BaseForm{
     {
         return $this->formData[$field];
     }
+
     /**
      * Возвращает тект ошибки
      * @param $field  поле для которого возвращаем текст ошибки
@@ -73,6 +81,7 @@ class BaseForm{
     {
         return $this->errors[$field] ?? null;
     }
+
     /**
      * Возвращает список ошибок
      * @return array
@@ -81,27 +90,29 @@ class BaseForm{
     {
         return $this->errors;
     }
+
     /**
      * Выполняет валидацию формы
      * @return void
      */
     public function validate()
     {
-        foreach($this->rules as $rule){
+        foreach ($this->rules as $rule) {
             list($ruleName, $fields) = $rule;
             $this->runValidator($ruleName, $fields);
         }
     }
+
     /**
      * Магический метод для получения значения поля по его имени
-     * @param string $name  Имя поля
+     * @param string $name Имя поля
      * @return mixed|null
      */
     public function __get($name)
     {
-        $result = $this->formData[$name] ?? null;
-        return $result;
+        return $this->formData[$name] ?? null;
     }
+
     /**
      * Запускает валидатор по его имени
      * @param string @name Имя валидатора
@@ -109,11 +120,12 @@ class BaseForm{
      */
     protected function runValidator($name, $fields)
     {
-        $method_name = 'run' . ucfirst($name) .'Validator';
-        if(method_exists($this, $method_name)){
+        $method_name = 'run' . ucfirst($name) . 'Validator';
+        if (method_exists($this, $method_name)) {
             $this->$method_name($fields);
         }
     }
+
     /**
      * Проверяет поле на его заполненность
      * @param array $fields Поля для проверки
@@ -122,24 +134,26 @@ class BaseForm{
     protected function runRequiredValidator($fields)
     {
         $result = true;
-        foreach($fields as $key=>$value){
-            if(!$this->formData[$value]){
+        foreach ($fields as $key => $value) {
+            if (!$this->formData[$value]) {
                 $result = false;
                 $this->errors[$value] = 'Это поле должно быть заполнено';
             }
         }
         return $result;
     }
+
     /**
      * Заполняет данные данными из формы
-     * @param array $data  данные для заполнения
+     * @param array $data данные для заполнения
      */
-    protected function fillFormData($data = []){
-        if(!$this->isSubmitted()){
+    protected function fillFormData($data = [])
+    {
+        if (!$this->isSubmitted()) {
             return;
         }
         $fillData = !empty($data) ? $data : $_POST[$this->formName];
-        foreach($this->fields as $field){
+        foreach ($this->fields as $field) {
             $this->formData[$field] = array_key_exists($field, $fillData) ? $fillData[$field] : null;
         }
     }
