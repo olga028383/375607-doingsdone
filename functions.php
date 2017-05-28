@@ -19,6 +19,7 @@ function printHead($bodyClassOverlay = '')
         <div class='page-wrapper'>
             <div class='container container--with-sidebar'>");
 }
+
 /* * Функция печатает закрывающиеся теги   */
 
 function printEndDivLayout()
@@ -41,20 +42,20 @@ function printEndBodyHtml()
 function checkForDateCorrected($str)
 {
     $translate = [
-        'Сегодня' => time(),
-        'Завтра' => time() + 86400,
-        'Послезавтра' => time() + 172800,
-        'Понедельник' => strtotime('Monday'),
-        'Вторник' => strtotime('Tuesday'),
-        'Среда' => strtotime('Wednesday'),
-        'Четверг' => strtotime('Thursday'),
-        'Пятница' => strtotime('Friday'),
-        'Суббота' => strtotime('Saturday'),
-        'Воскресенье' => strtotime('Sunday')
+        'сегодня' => strtotime('24:00:00'),
+        'завтра' => time() + 86400,
+        'послезавтра' => time() + 172800,
+        'понедельник' => strtotime('Monday'),
+        'вторник' => strtotime('Tuesday'),
+        'среда' => strtotime('Wednesday'),
+        'четверг' => strtotime('Thursday'),
+        'пятница' => strtotime('Friday'),
+        'суббота' => strtotime('Saturday'),
+        'воскресенье' => strtotime('Sunday')
     ];
     $pattern = '((\d{2}\.\d{2}\.\d{4})|' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
     $matches = [];
-    $matched = preg_match("/^$pattern$/", $str, $matches);
+    $matched = preg_match("/^$pattern$/", mb_strtolower($str), $matches);
     if (!$matched) {
         return false;
     }
@@ -114,7 +115,7 @@ function includeTemplate($template, $templateData)
     ob_start();
 
     /* htmlspecialcharacters() используется в шаблоне при выводе данных */
-    require_once __DIR__ . "/templates/".$template;
+    require_once __DIR__ . "/templates/" . $template;
 
     return ob_get_clean();
 }
