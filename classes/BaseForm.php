@@ -50,7 +50,7 @@ class BaseForm
      */
     public function isValid()
     {
-        return empty($errors);
+        return count($this->errors) === 0;
     }
 
     /**
