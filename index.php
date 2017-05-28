@@ -118,10 +118,10 @@ printEndDivLayout();
 
 print includeTemplate('footer.php', ['user' => $user]);
 if ($modalShowTask) {
-    print(includeTemplate('add-task.php', ['form' => $taskForm]));
+    print(includeTemplate('add-task.php', ['form' => $taskForm,'projects' => $projectList]));
 }
 if ($modalShowProject) {
-    print(includeTemplate('add-project.php', ['projects' => $projectList, 'form' => $categoryForm]));
+    print(includeTemplate('add-project.php', ['form' => $categoryForm]));
 }
 printEndBodyHtml();
 ?>
