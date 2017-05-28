@@ -3,7 +3,7 @@
 require_once 'mysql_helper.php';
 /* * Функция печатает тег head */
 
-function printHead()
+function printHead($bodyClassOverlay = '')
 {
     print("<!DOCTYPE html>
         <html lang='en'>
@@ -13,7 +13,17 @@ function printHead()
             <title>Дела в Порядке!</title>
             <link rel='stylesheet' href='css/normalize.css'>
             <link rel='stylesheet' href='css/style.css'>
-        </head>");
+        </head>
+        <body class=$bodyClassOverlay>
+        <h1 class='visually-hidden'>Дела в порядке</h1>
+        <div class='page-wrapper'>
+            <div class='container container--with-sidebar'>");
+}
+/* * Функция печатает закрывающиеся теги   */
+
+function printEndDivLayout()
+{
+    print("</div></div>");
 }
 
 /* * Функция печатает закрывающий тег body, html, скрипты  */

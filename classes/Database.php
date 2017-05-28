@@ -35,7 +35,7 @@ class Database
     {
         include 'config.php';
         $this->link = mysqli_connect($DBCONFIG['host'], $DBCONFIG['user'], $DBCONFIG['password'], $DBCONFIG['database']);
-        if(!$this->link){
+        if (!$this->link) {
             $this->error = 'Ошибка: Невозможно подключиться к MySQL ' . mysqli_connect_error();
         }
     }

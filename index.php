@@ -7,42 +7,14 @@ require_once 'init.php';
 $bodyClassOverlay = '';
 $modalShow = false;
 $modalShowCategory = false;
-$showAuthenticationForm = false;
 $showPageRegister = false;
-$messageAfterRegistered = false;
 $taskList = [];
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
 if (isset($_GET['register'])) {
     $showPageRegister = true;
 }
-//Если пользователь только что авторизовался, то покажем ему сообщение
-if (isset($_GET['login']) && isset($_GET['show_message'])) {
-    $messageAfterRegistered = true;
-}
-
-//создаем объект для формы ауторизации
-$authForm = new AuthForm();
-if ($authForm->isSubmitted()) {
-    $authForm->validate();
-    if ($authForm->isValid()) {
-        if (password_verify($authForm->getDataField('password'), $authForm->user[0]['password'])) {
-            $_SESSION['user'] = $authForm->user[0];
-            header("Location: /index.php");
-            exit();
-        } else {
-            $resultAuth['output']['errors']['password'] = true;
-        }
-    }
-}
-
-// Если пришёл get-параметр login или sendAuth, то покажем форму регистрации
-if (isset($_GET['login']) || $authForm->isSubmitted()) {
-    $bodyClassOverlay = 'overlay';
-    $showAuthenticationForm = true;
-}
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
-$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
-
+$user = Auth::logout();
 /* Получаем  задачи и проекты после того как пользователь авторизован */
 if (is_object(Database::instance()->resultConnection()) && $user) {
     /* Получаем массив проектов из базы данных, и добавляет 1 значение "Все" */
@@ -133,25 +105,16 @@ if (isset($_GET['show_completed'])) {
 } else if (isset($_COOKIE['show_completed'])) {
     $show_completed = $_COOKIE['show_completed'];
 }
-?>
-<?= printHead(); ?>
+printHead($bodyClassOverlay);
 
-<body class=<?= $bodyClassOverlay; ?>>
-<h1 class="visually-hidden">Дела в порядке</h1>
+print(includeTemplate('header.php', ['user' => $user]));
+if (!$user) {
+    print(includeTemplate('guest.php', []));
+} else {
+    print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
+}
+printEndDivLayout();
 
-<div class="page-wrapper">
-    <div class="container container--with-sidebar">
-        <?= includeTemplate('header.php', ['user' => $user]); ?>
-        <?php
-        if (!$user) {
-            print(includeTemplate('guest.php', ['showAuthenticationForm' => $showAuthenticationForm, 'form' => $authForm, 'messageAfterRegistered' => $messageAfterRegistered]));
-        } else {
-            print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
-        }
-        ?>
-    </div>
-</div>
-<?php
 print includeTemplate('footer.php', ['user' => $user]);
 if ($modalShow) {
     print(includeTemplate('add-project.php', ['projects' => $projectList, 'form' => $taskForm]));

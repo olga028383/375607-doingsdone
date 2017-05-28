@@ -21,7 +21,7 @@ class AuthForm extends BaseForm {
     protected function runEmailValidator($fields)
     {
         $result = true;
-        $user = Auth::getUser($this->formData['email']);
+        $user = User::getUser($this->formData['email']);
         foreach($fields as $value){
             $field = $this->formData[$value];
             if(filter_var($field, FILTER_VALIDATE_EMAIL) && !$user){
