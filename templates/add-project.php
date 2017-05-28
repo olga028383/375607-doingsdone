@@ -7,90 +7,24 @@
  */
 $form = $templateData['form'];
 $valid = $form->getformData();
-/**
- * Возвращает значение, которое нужно записать в value для инпута.
- * Либо по умолчанию (пустота), либо то что пришло в $_POST и нужно сохранить для невалидной формы.
- * @param type $templateData
- * @param type $name
- * @return string
- */
-function getFormValue($templateData, $name)
-{
-    $isField = $templateData ? $templateData : '';
-    if (!$isField) {
-        return;
-    }
-    if ($name == 'project') {
-        $result = '0';
-        if ($templateData['project']) {
-            $result = $templateData['project'];
-
-        }
-        return $result;
-    }
-    // Для остальных полей берем просто что пришло в посте
-    return $templateData[$name];
-}
-
 ?>
 <div class="modal">
     <a href="/" class="modal__close">Закрыть</a>
 
-    <h2 class="modal__heading">Добавление задачи</h2>
+    <h2 class="modal__heading">Добавление категории</h2>
 
-    <form class="form" class="" action="/index.php" method="post" enctype="multipart/form-data">
+    <form class="form" class="" action="/index.php" method="post">
         <div class="form__row">
-            <label class="form__label" for="task">Название <sup>*</sup></label>
-            <?= addRequiredSpan($form->getError('task')); ?>
-            <input class="form__input <?php if ($form->getError('task')): ?>form__input--error <?php endif; ?>"
+            <label class="form__label" for="category">Название <sup>*</sup></label>
+            <?= addRequiredSpan($form->getError('category')); ?>
+            <input class="form__input <?php if ($form->getError('category')): ?>form__input--error <?php endif;?>"
                    type="text"
-                   name="task[task]"
+                   name="category[category]"
                    id="name"
-                   value="<?= getFormValue($valid, 'task') ?>"
+                   value="<?php $valid ? print(htmlspecialchars($valid['category'])) : ''; ?>"
                    placeholder="Введите название">
         </div>
-
-        <div class="form__row">
-            <label class="form__label" for="project">Проект <sup>*</sup></label>
-            <?= addRequiredSpan($form->getError('project')); ?>
-
-            <select class="form__input form__input--select <?php if ($form->getError('project')): ?>form__input--error <?php endif; ?>"
-                    name="task[project]" id="project">
-                <?php
-                $selectedValue = getFormValue($valid, 'project');
-                $allOptions = array_merge([['id' => 0, 'name' => 'Выберите проект']], $templateData['projects']);
-                foreach ($allOptions as $value => $option) {
-                    $selected = $option['id'] == $selectedValue ? 'selected' : '';
-                    echo '<option value="' . $option['id'] . '" ' . $selected . '>' . $option['name'] . '</option>';
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="form__row">
-            <label class="form__label" for="deadline">Дата выполнения <sup>*</sup></label>
-            <?= addRequiredSpan($form->getError('deadline')); ?>
-            <input class="form__input form__input--date <?php if ($form->getError('deadline')): ?>form__input--error <?php endif; ?>"
-                   type="text"
-                   name="task[deadline]"
-                   id="deadline"
-                   value="<?= getFormValue($valid, 'deadline') ?>"
-                   placeholder="Введите дату в формате ДД.ММ.ГГГГ">
-        </div>
-
-        <div class="form__row">
-            <label class="form__label" for="file">Файл</label>
-
-            <div class="form__input-file">
-                <input class="visually-hidden" type="file" name="task[preview]" id="preview" value="">
-
-                <label class="button button--transparent" for="preview">
-                    <span>Выберите файл</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="form__row form__row--controls">
+        <div class="form__row ">
             <input class="button" type="submit" value="Добавить">
         </div>
     </form>

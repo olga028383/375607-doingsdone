@@ -11,7 +11,7 @@
     </a>
     <div class="main-header__side">
         <?php if (!empty($templateData['user'])) : ?>
-            <a class="main-header__side-item button button--plus" href="index.php?add">Добавить задачу</a>
+            <a class="main-header__side-item button button--plus" href="/index.php?addTask">Добавить задачу</a>
 
             <div class="main-header__side-item user-menu">
                 <div class="user-menu__image">

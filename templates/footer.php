@@ -13,7 +13,7 @@
       <p>Веб-приложение для удобного ведения списка дел.</p>
     </div>
      <?php if (!empty($templateData['user'])) : ?>
-        <a href="index.php?add" class="main-footer__button button button--plus">Добавить задачу</a>
+        <a href="/index.php?addTask" class="main-footer__button button button--plus">Добавить задачу</a>
      <?php endif; ?>
     <div class="main-footer__social social">
       <span class="visually-hidden">Мы в соцсетях:</span>

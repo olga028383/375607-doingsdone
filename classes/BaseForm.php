@@ -6,7 +6,7 @@
 class BaseForm
 {
     /**
-     * @var array $fields Список имен полей формы
+     * @var string[] $fields Список имен полей формы
      */
     protected $fields = [];
     /**
@@ -57,14 +57,14 @@ class BaseForm
      * Возвращает данные отправленные из формы
      * @return array
      */
-    public function getformData()
+    public function getFormData()
     {
         return $this->formData;
     }
 
     /**
      * Возвращает данные конкретного поля
-     * @param $field  поле, которое требуется вернуть
+     * @param string $field поле, которое требуется вернуть
      * @return string
      */
     public function getDataField($field)
@@ -74,7 +74,7 @@ class BaseForm
 
     /**
      * Возвращает тект ошибки
-     * @param $field  поле для которого возвращаем текст ошибки
+     * @param string $field поле для которого возвращаем текст ошибки
      * @return string
      */
     public function getError($field)

@@ -8,4 +8,6 @@ require_once 'classes/Database.php';
 require_once 'classes/AddTaskForm.php';
 require_once 'classes/AddCategoryForm.php';
 require_once 'classes/Auth.php';
+require_once 'classes/Project.php';
+require_once 'classes/Task.php';
 require_once 'classes/User.php';

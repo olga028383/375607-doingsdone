@@ -11,20 +11,22 @@ if (isset($_GET['login']) && isset($_GET['show_message'])) {
 }
 if ($authForm->isSubmitted()) {
     $authForm->validate();
-    if ($authForm->isValid()) {
-        if (password_verify($authForm->getDataField('password'), $authForm->user[0]['password'])) {
-            $_SESSION['user'] = $authForm->user[0];
+    if ($authForm->isValid() ) {
+        $data = $authForm->getFormData();
+        if (Auth::login($data['email'], $data['password'])) {
             header("Location: /index.php");
             exit();
         } else {
+            $authForm->addBadEmailOrPasswordError();
             $resultAuth['output']['errors']['password'] = true;
         }
     }
 }
+
 printHead($bodyClassOverlay);
-print(includeTemplate('header.php', ['user' => Auth::logout()]));
+print(includeTemplate('header.php', ['user' => Auth::getAuthUser()]));
 print(includeTemplate('guest.php', []));
 print(includeTemplate('login.php', [ 'form' => $authForm, 'messageAfterRegistered' => $messageAfterRegistered]));
 printEndDivLayout();
-print includeTemplate('footer.php', ['user' => Auth::logout()]);
+print includeTemplate('footer.php', ['user' => Auth::getAuthUser()]);
 printEndBodyHtml();

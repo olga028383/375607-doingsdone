@@ -5,8 +5,8 @@ error_reporting(E_ALL);
 require_once 'init.php';
 /* Инициализация переменных */
 $bodyClassOverlay = '';
-$modalShow = false;
-$modalShowCategory = false;
+$modalShowTask = false;
+$modalShowProject = false;
 $showPageRegister = false;
 $taskList = [];
 //проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
@@ -14,21 +14,19 @@ if (isset($_GET['register'])) {
     $showPageRegister = true;
 }
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
-$user = Auth::logout();
+$user = Auth::requireAuthentication();
 /* Получаем  задачи и проекты после того как пользователь авторизован */
-if (is_object(Database::instance()->resultConnection()) && $user) {
-    /* Получаем массив проектов из базы данных, и добавляет 1 значение "Все" */
-    $projectList = getProjects($user);
-    /* Получаем массив задач из базы */
-    if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
-        $query = trim($_GET['search']);
-        $taskList = getTasksByProjectOnRequest($user, $query);
-    } else if (isset($_GET['filter'])) {
-        $filter = sanitizeInput($_GET['filter']);
-        $taskList = getTasksByProjectOnRequestFilter($user, $filter);
-    } else {
-        $taskList = getTasksByProject($user);
-    }
+
+$projectList = getProjects($user);
+/* Получаем массив задач из базы */
+if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
+    $query = trim($_GET['search']);
+    $taskList = getTasksByProjectOnRequest($user, $query);
+} else if (isset($_GET['filter'])) {
+    $filter = sanitizeInput($_GET['filter']);
+    $taskList = getTasksByProjectOnRequestFilter($user, $filter);
+} else {
+    $taskList = getTasksByProject($user);
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
@@ -57,9 +55,9 @@ if (isset($_GET['project'])) {
 }
 $taskForm = new AddTaskForm();
 // Если пришёл get-параметр add, то покажем форму добавления проекта
-if (isset($_GET['add']) || $taskForm->isSubmitted()) {
+if (isset($_GET['addTask']) || $taskForm->isSubmitted()) {
     $bodyClassOverlay = 'overlay';
-    $modalShow = true;
+    $modalShowTask = true;
 }
 if ($taskForm->isSubmitted()) {
     $taskForm->validate();
@@ -74,27 +72,25 @@ if ($taskForm->isSubmitted()) {
             $path = $file['name'];
         }
         /* Функция добавляет задачу в базу */
-        addTaskToDatabase($taskForm->getformData(), $path, $user);
-        $bodyClassOverlay = '';
-        $modalShow = false;
+        addTaskToDatabase($taskForm->getFormData(), $path, $user);
         header("Location: /index.php");
         exit();
     }
 }
 
 // Валидация формы добавления категорий для проекта
-$categotyForm = new AddCategoryForm();
-if (isset($_GET['addCategory']) || $categotyForm->isSubmitted()) {
+$categoryForm = new AddCategoryForm();
+if (isset($_GET['addProject']) || $categoryForm->isSubmitted()) {
     $bodyClassOverlay = 'overlay';
-    $modalShowCategory = true;
+    $modalShowProject = true;
 }
-if ($categotyForm->isSubmitted()) {
-    $categotyForm->validate();
-    if ($categotyForm->isValid()) {
+if ($categoryForm->isSubmitted()) {
+    $categoryForm->validate();
+    if ($categoryForm->isValid()) {
         /* Функция добавляет категорию в базу */
-        addCategoryToDatabase($categoryForm->getformData(), $user);
-        $bodyClassOverlay = '';
-        $modalShowCategory = false;
+        addProject($categoryForm->getformData(), $user);
+        header("Location: /index.php");
+        exit();
     }
 }
 //если пришел параметр show_completed создаем куку
@@ -111,16 +107,21 @@ print(includeTemplate('header.php', ['user' => $user]));
 if (!$user) {
     print(includeTemplate('guest.php', []));
 } else {
-    print (includeTemplate('main.php', ['projects' => $projectList, 'tasksToDisplay' => $tasksToDisplay, 'allTasks' => $taskList, 'show_completed' => $show_completed]));
+    print (includeTemplate('main.php', [
+        'projects' => $projectList,
+        'tasksToDisplay' => $tasksToDisplay,
+        'allTasks' => $taskList,
+        'show_completed' => $show_completed]
+    ));
 }
 printEndDivLayout();
 
 print includeTemplate('footer.php', ['user' => $user]);
-if ($modalShow) {
-    print(includeTemplate('add-project.php', ['projects' => $projectList, 'form' => $taskForm]));
+if ($modalShowTask) {
+    print(includeTemplate('add-task.php', ['form' => $taskForm]));
 }
-if ($modalShowCategory) {
-    print(includeTemplate('add-category.php', ['form' => $categotyForm]));
+if ($modalShowProject) {
+    print(includeTemplate('add-project.php', ['projects' => $projectList, 'form' => $categoryForm]));
 }
 printEndBodyHtml();
 ?>
