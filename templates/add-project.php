@@ -17,7 +17,7 @@ $valid = $form->getformData();
         <div class="form__row">
             <label class="form__label" for="category">Название <sup>*</sup></label>
             <?= addRequiredSpan($form->getError('category')); ?>
-            <input class="form__input <?php if ($form->getError('category')): ?>form__input--error <?php endif;?>"
+            <input class="form__input <?php if ($form->getError('category')): ?>form__input--error <?php endif; ?>"
                    type="text"
                    name="category[category]"
                    id="name"

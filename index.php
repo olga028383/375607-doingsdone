@@ -14,21 +14,25 @@ if (isset($_GET['register'])) {
     $showPageRegister = true;
 }
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
-$user = Auth::requireAuthentication();
-/* Получаем  задачи и проекты после того как пользователь авторизован */
-
-$projectList = getProjects($user);
-/* Получаем массив задач из базы */
-if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
-    $query = trim($_GET['search']);
-    $taskList = getTasksByProjectOnRequest($user, $query);
-} else if (isset($_GET['filter'])) {
-    $filter = sanitizeInput($_GET['filter']);
-    $taskList = getTasksByProjectOnRequestFilter($user, $filter);
-} else {
-    $taskList = getTasksByProject($user);
+$user = Auth::getAuthUser();
+if ($user) {
+    $filter = false;
+    $search = false;
+    /* Получаем  задачи и проекты после того как пользователь авторизован */
+    $projectList = getProjects($user);
+    /* Получаем массив задач из базы в зависимости от запроса*/
+    if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
+        $query = trim($_GET['search']);
+        $taskList = getTasksByProjectOnRequest($user, $query);
+        $search = trim($_GET['search']);
+    } else if (isset($_GET['filter'])) {
+        $filter = sanitizeInput($_GET['filter']);
+        $taskList = getTasksByProjectOnRequestFilter($user, $filter);
+        $filter = sanitizeInput($_GET['filter']);
+    } else {
+        $taskList = getTasksByProject($user);
+    }
 }
-
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
@@ -108,17 +112,20 @@ if (!$user) {
     print(includeTemplate('guest.php', []));
 } else {
     print (includeTemplate('main.php', [
-        'projects' => $projectList,
-        'tasksToDisplay' => $tasksToDisplay,
-        'allTasks' => $taskList,
-        'show_completed' => $show_completed]
+            'projects' => $projectList,
+            'tasksToDisplay' => $tasksToDisplay,
+            'allTasks' => $taskList,
+            'show_completed' => $show_completed,
+            'filter' => $filter,
+            'search' => $search
+        ]
     ));
 }
 printEndDivLayout();
 
 print includeTemplate('footer.php', ['user' => $user]);
 if ($modalShowTask) {
-    print(includeTemplate('add-task.php', ['form' => $taskForm,'projects' => $projectList]));
+    print(includeTemplate('add-task.php', ['form' => $taskForm, 'projects' => $projectList]));
 }
 if ($modalShowProject) {
     print(includeTemplate('add-project.php', ['form' => $categoryForm]));

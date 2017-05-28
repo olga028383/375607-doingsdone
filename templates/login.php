@@ -11,7 +11,7 @@ if ($templateData['messageAfterRegistered']) {
 ?>
 
 <div class="modal">
-    <a href="/" class="modal__close" name="button">Закрыть</a>
+    <a href="/index.php" class="modal__close" name="button">Закрыть</a>
 
     <h2 class="modal__heading">Вход на сайт</h2>
     <?= $messageAfterRegistered; ?>

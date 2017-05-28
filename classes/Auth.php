@@ -6,11 +6,13 @@
 class Auth
 {
     /**
+     * Функция создает сессию пользователя
      * @param string $email
      * @param string $password
      * @return bool
      */
-    public static function login($email, $password) {
+    public static function login($email, $password)
+    {
         $user = User::getUser($email);
         $result = password_verify($password, $user['password']);
         if ($result) {
@@ -19,7 +21,11 @@ class Auth
         return $result;
     }
 
-    public static function logout() {
+    /**
+     * Функция удаляет сессию
+     */
+    public static function logout()
+    {
         session_unset();
         session_destroy();
     }
@@ -31,14 +37,5 @@ class Auth
     public static function getAuthUser()
     {
         return isset($_SESSION['user']) ? $_SESSION['user'] : [];
-    }
-
-    public static function requireAuthentication() {
-        $user = self::getAuthUser();
-        if (empty($user)) {
-            header("Location: /login.php");
-            exit;
-        }
-        return $user;
     }
 }

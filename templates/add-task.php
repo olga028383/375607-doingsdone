@@ -83,7 +83,7 @@ function getFormValue($templateData, $name)
             <label class="form__label" for="file">Файл</label>
 
             <div class="form__input-file">
-                <input class="visually-hidden" type="file" name="task[preview]" id="preview" value="">
+                <input class="visually-hidden" type="file" name="preview" id="preview" value="">
 
                 <label class="button button--transparent" for="preview">
                     <span>Выберите файл</span>

@@ -29,9 +29,11 @@ class AuthForm extends BaseForm {
         }
         return $result;
     }
-
+    /**
+     * Записывает ошибку, если пароль введен неверно
+     */
     public function addBadEmailOrPasswordError() {
-        $this->errors['email'] = 'Пользователя с таким именем  паролем не существует, воспользуйтесь формой регистрации';
+        $this->errors['password'] = 'Пароль введен не верно';
     }
 
 }

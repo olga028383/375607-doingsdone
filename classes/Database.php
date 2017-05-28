@@ -33,7 +33,7 @@ class Database
      */
     private function __construct()
     {
-        include dirname(__FILE__).'/../config.php';
+        include dirname(__FILE__) . '/../config.php';
         /** @var array $DBCONFIG */
         $this->link = @mysqli_connect($DBCONFIG['host'], $DBCONFIG['user'], $DBCONFIG['password'], $DBCONFIG['database']);
         if (!$this->link) {

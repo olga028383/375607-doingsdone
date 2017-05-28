@@ -9,7 +9,7 @@ session_start();
 
 // Проверка что таск с таким id вообще есть и он наш (проверяется внутри getTaskById)
 $id = $_GET['id'];
-$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : [];
+$user = Auth::getAuthUser();
 $task = getTaskById($id, $user);
 if (empty($task)) {
     header("HTTP/1.0 404 Not Found");

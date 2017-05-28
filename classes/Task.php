@@ -98,6 +98,7 @@ function getTasksByProjectOnRequest($user, $query)
     $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ? AND `name` LIKE ?";
     return Database::instance()->getData($sqlGetTasks, [$user['id'], "%$query%"]);
 }
+
 /**
  * Функция добавляет задачу в базу
  * @param  array $resultAddTask валидные и не валидные поля

@@ -4,6 +4,9 @@
  * array $templateData['projects'] содержит список проектов,
  * array $templateData['allTasks'] массив состоящий из полного списка задач,
  * array $templateData['tasksToDisplay'] новый массив состоящий из задач, запрошенных пользователем*
+ * number $templateData['show_completed']
+ * string $templateData['filter']
+ * string $templateData['search']
  */
 ?>
 <div class="content">
@@ -13,6 +16,12 @@
         <nav class="main-navigation">
             <ul class="main-navigation__list">
                 <?php
+                $link = '';
+                if ($templateData['filter']) {
+                    $link = "&filter=$templateData[filter]";
+                } else if ($templateData['search']) {
+                    $link = "&search=$templateData[search]";
+                }
                 $keyToHightlight = !empty($_GET['project']) ? $_GET['project'] : 0;
                 $newArray = array_merge([['id' => 0, 'name' => 'Все']], $templateData['projects']);
                 foreach ($newArray as $val):
@@ -23,7 +32,7 @@
                     ?>
                     <li class="main-navigation__list-item <?= $activeClass; ?>">
                         <a class="main-navigation__list-item-link"
-                           href="/index.php?project=<?= $val['id']; ?>"><?= htmlspecialchars($val['name']); ?></a>
+                           href="/index.php?project=<?= $val['id'] . $link; ?>"><?= htmlspecialchars($val['name']); ?></a>
                         <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val['id'])); ?></span>
                     </li>
                 <?php endforeach; ?>
