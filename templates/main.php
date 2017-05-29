@@ -33,7 +33,7 @@
                     <li class="main-navigation__list-item <?= $activeClass; ?>">
                         <a class="main-navigation__list-item-link"
                            href="/index.php?project=<?= $val['id'] . $link; ?>"><?= htmlspecialchars($val['name']); ?></a>
-                        <span class="main-navigation__list-item-count"><?= getNumberTasks($templateData['allTasks'], htmlspecialchars($val['id'])); ?></span>
+                        <span class="main-navigation__list-item-count"><?= Task::getNumberTasks($templateData['allTasks'], htmlspecialchars($val['id'])); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>

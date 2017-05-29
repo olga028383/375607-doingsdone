@@ -7,7 +7,7 @@ function printHead($bodyClassOverlay = '')
 {
     print("<!DOCTYPE html>
         <html lang='en'>
-        
+
         <head>
             <meta charset='UTF-8'>
             <title>Дела в Порядке!</title>
@@ -37,7 +37,7 @@ function printEndBodyHtml()
 /**
  * Функция проверяет корректность даты заполняемой пользователем
  * @param  string $str введенная дата
- * @return time() или false
+ * @return int|bool
  */
 function checkForDateCorrected($str)
 {
@@ -53,27 +53,27 @@ function checkForDateCorrected($str)
         'суббота' => strtotime('Saturday'),
         'воскресенье' => strtotime('Sunday')
     ];
-    $pattern = '((\d{2}\.\d{2}\.\d{4})|' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
+    $pattern = '(((\d{2})\.(\d{2})\.(\d{4}))|' . implode('|', array_keys($translate)) . ')(\s+в\s+((\d{2}):(\d{2})))?';
     $matches = [];
     $matched = preg_match("/^$pattern$/", mb_strtolower($str), $matches);
     if (!$matched) {
         return false;
     }
-    if (isset($matches[5]) && (int)$matches[5] > 23) {
+    if (isset($matches[8]) && (int)$matches[8] > 23) {
         return false;
     }
-    if (isset($matches[6]) && (int)$matches[6] > 59) {
+    if (isset($matches[9]) && (int)$matches[9] > 59) {
         return false;
     }
     $date = $matches[1];
-    $time = isset($matches[4]) ? $matches[4] : null;
-    $seconds = $time ? strtotime("1970-01-01 $time UTC") : 0;
     if (isset($translate[$date])) {
-        $resultTimestamp = $translate[$date] + $seconds;
+        $date = date('Y-m-d', $translate[$date]);
     } else {
-        $resultTimestamp = strtotime($date) + $seconds;
+        $date = $matches[5].'-'.$matches[4].'-'.$matches[3];
     }
-    return $resultTimestamp >= strtotime('24:00:00') ? $resultTimestamp : false;
+    $time = isset($matches[7]) ? $matches[7] : '';
+    $result = "$date $time";
+    return $result;
 }
 
 

@@ -18,7 +18,6 @@ if ($authForm->isSubmitted()) {
             exit();
         } else {
             $authForm->addBadEmailOrPasswordError();
-            $resultAuth['output']['errors']['password'] = true;
         }
     }
 }

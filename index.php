@@ -19,20 +19,21 @@ if ($user) {
     $filter = false;
     $search = false;
     /* Получаем  задачи и проекты после того как пользователь авторизован */
-    $projectList = getProjects($user);
+    $projectList = Project::getProjects($user);
     /* Получаем массив задач из базы в зависимости от запроса*/
     if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
         $query = trim($_GET['search']);
-        $taskList = getTasksByProjectOnRequest($user, $query);
+        $taskList = Task::getTasksByProjectOnRequest($user, $query);
         $search = trim($_GET['search']);
     } else if (isset($_GET['filter'])) {
         $filter = sanitizeInput($_GET['filter']);
-        $taskList = getTasksByProjectOnRequestFilter($user, $filter);
+        $taskList = Task::getTasksByProjectOnRequestFilter($user, $filter);
         $filter = sanitizeInput($_GET['filter']);
     } else {
-        $taskList = getTasksByProject($user);
+        $taskList = Task::getTasksByProject($user);
     }
 }
+
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
 $tasksToDisplay = [];
 $project = '';
@@ -76,7 +77,7 @@ if ($taskForm->isSubmitted()) {
             $path = $file['name'];
         }
         /* Функция добавляет задачу в базу */
-        addTaskToDatabase($taskForm->getFormData(), $path, $user);
+        Task::addTaskToDatabase($taskForm->getFormData(), $path, $user);
         header("Location: /index.php");
         exit();
     }
@@ -92,7 +93,7 @@ if ($categoryForm->isSubmitted()) {
     $categoryForm->validate();
     if ($categoryForm->isValid()) {
         /* Функция добавляет категорию в базу */
-        addProject($categoryForm->getformData(), $user);
+        Project::addProject($categoryForm->getformData(), $user);
         header("Location: /index.php");
         exit();
     }
