@@ -1,5 +1,6 @@
 <?php
+require_once 'init.php';
 session_start();
-unset($_SESSION['user']);
+Auth::logout();
 header("Location: /index.php");
-exit();
+
