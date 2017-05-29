@@ -21,48 +21,6 @@ function printHead($bodyClassOverlay = '')
 }
 
 /**
- * Функция проверяет форму и добавляет категорию
- * @param $taskForm объект задачи
- * @param $user
- */
-function showAddTaskFormIfNeeded($taskForm, $user = [])
-{
-    $taskForm->validate();
-    if ($taskForm->isValid()) {
-        $file = null;
-        $path = null;
-        if (isset($_FILES['preview'])) {
-            $file = $_FILES['preview'];
-            if (is_uploaded_file($file['tmp_name'])) {
-                move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
-            }
-            $path = $file['name'];
-        }
-        /* Функция добавляет задачу в базу */
-        Task::addTaskToDatabase($taskForm->getFormData(), $path, $user);
-        header("Location: /index.php");
-        exit();
-    }
-}
-
-/**
- * Функция проверяет форму и добавляет категорию
- * @param $categoryForm объект формы
- * @param $user
- */
-function showAddProjectFormIfNeeded($categoryForm, $user = [])
-{
-    $categoryForm->validate();
-    if ($categoryForm->isValid()) {
-        /* Функция добавляет категорию в базу */
-        Project::addProject($categoryForm->getformData(), $user);
-        header("Location: /index.php");
-        exit();
-    }
-
-}
-
-/**
  * Функция получает список проектов и задач
  * @param array $user принимает массив с данными авторизованного пользователя
  * @return array
