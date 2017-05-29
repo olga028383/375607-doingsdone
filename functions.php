@@ -3,8 +3,9 @@
 require_once 'mysql_helper.php';
 /* * Функция печатает тег head */
 
-function printHead($bodyClassOverlay = '')
+function printHead($bodyClassOverlay = false)
 {
+    $class = $bodyClassOverlay ? 'overlay' : '';
     print("<!DOCTYPE html>
         <html lang='en'>
 
@@ -14,38 +15,13 @@ function printHead($bodyClassOverlay = '')
             <link rel='stylesheet' href='css/normalize.css'>
             <link rel='stylesheet' href='css/style.css'>
         </head>
-        <body class=$bodyClassOverlay>
+        <body class='$class'>
         <h1 class='visually-hidden'>Дела в порядке</h1>
         <div class='page-wrapper'>
             <div class='container container--with-sidebar'>");
 }
 
-/**
- * Функция получает список проектов и задач
- * @param array $user принимает массив с данными авторизованного пользователя
- * @return array
- */
-function getTasksAndProjects($user)
-{
-    $filter = false;
-    $search = false;
-    /* Получаем  задачи и проекты после того как пользователь авторизован */
-    $projectList = Project::getProjects($user);
-    /* Получаем массив задач из базы в зависимости от запроса*/
-    if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
-        $query = trim($_GET['search']);
-        $taskList = Task::getTasksByProjectOnRequest($user, $query);
-        $search = trim($_GET['search']);
-    } else if (isset($_GET['filter'])) {
-        $filter = sanitizeInput($_GET['filter']);
-        $taskList = Task::getTasksByProjectOnRequestFilter($user, $filter);
-        $filter = sanitizeInput($_GET['filter']);
-    } else {
-        $taskList = Task::getTasksByProject($user);
-    }
 
-    return [$filter, $search, $projectList, $taskList];
-}
 
 /* * Функция печатает закрывающиеся теги   */
 

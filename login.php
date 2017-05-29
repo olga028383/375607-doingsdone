@@ -2,7 +2,6 @@
 session_start();
 require_once 'init.php';
 $messageAfterRegistered = false;
-$bodyClassOverlay = 'overlay';
 //создаем объект для формы ауторизации
 $authForm = new AuthForm();
 //Если пользователь только что авторизовался, то покажем ему сообщение
@@ -22,7 +21,7 @@ if ($authForm->isSubmitted()) {
     }
 }
 
-printHead($bodyClassOverlay);
+printHead(true);
 print(includeTemplate('header.php', ['user' => Auth::getAuthUser()]));
 print(includeTemplate('guest.php', []));
 print(includeTemplate('login.php', [ 'form' => $authForm, 'messageAfterRegistered' => $messageAfterRegistered]));
