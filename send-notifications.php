@@ -16,7 +16,6 @@ $sql = "SELECT tasks.id, tasks.name, tasks.deadline, user.email, user.name as us
         AND tasks.deadline >= ?
         AND tasks.deadline <=";
 $result = Database::instance()->getData($sql, [$timeFrom, $timeTo]);
-
 // Составляем массив пользователей и сообщений и делаем отметку в таблицу notifications
 $arr = [];
 foreach ($result as $value) {
@@ -61,5 +60,5 @@ function sendMail($email, $message)
     $text = "Пользователь : $email . Сообщение: $message";
     fwrite($handler, iconv("UTF-8", "UTF-8", "$text"));
     fclose($handler);
-    echo "Отправлено письмо пользователю ".$email."\n";
+    echo "Отправлено письмо пользователю " . $email . "\n";
 }

@@ -7,31 +7,13 @@ require_once 'init.php';
 $bodyClassOverlay = '';
 $modalShowTask = false;
 $modalShowProject = false;
-$showPageRegister = false;
 $taskList = [];
-//проверяем, если пришел параметр register, то подключаем шаблон формы регистрации
-if (isset($_GET['register'])) {
-    $showPageRegister = true;
-}
+
 //Записываю сессию с информацией о пльзователе в переменную, если она есть
 $user = Auth::getAuthUser();
 if ($user) {
-    $filter = false;
-    $search = false;
-    /* Получаем  задачи и проекты после того как пользователь авторизован */
-    $projectList = Project::getProjects($user);
-    /* Получаем массив задач из базы в зависимости от запроса*/
-    if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
-        $query = trim($_GET['search']);
-        $taskList = Task::getTasksByProjectOnRequest($user, $query);
-        $search = trim($_GET['search']);
-    } else if (isset($_GET['filter'])) {
-        $filter = sanitizeInput($_GET['filter']);
-        $taskList = Task::getTasksByProjectOnRequestFilter($user, $filter);
-        $filter = sanitizeInput($_GET['filter']);
-    } else {
-        $taskList = Task::getTasksByProject($user);
-    }
+    //Если пользователь залогинен, загрузим задачи, проекты в зависимости от переданных параметров
+    list($filter, $search, $projectList, $taskList) = getTasksAndProjects($user);
 }
 
 // Если пришел get-параметр project, то отфильтруем все таски про проекту
@@ -58,29 +40,14 @@ if (isset($_GET['project'])) {
 } else {
     $tasksToDisplay = $taskList;
 }
+// Валидация формы добавления задач для проекта
 $taskForm = new AddTaskForm();
-// Если пришёл get-параметр add, то покажем форму добавления проекта
 if (isset($_GET['addTask']) || $taskForm->isSubmitted()) {
     $bodyClassOverlay = 'overlay';
     $modalShowTask = true;
 }
 if ($taskForm->isSubmitted()) {
-    $taskForm->validate();
-    if ($taskForm->isValid()) {
-        $file = null;
-        $path = null;
-        if (isset($_FILES['preview'])) {
-            $file = $_FILES['preview'];
-            if (is_uploaded_file($file['tmp_name'])) {
-                move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
-            }
-            $path = $file['name'];
-        }
-        /* Функция добавляет задачу в базу */
-        Task::addTaskToDatabase($taskForm->getFormData(), $path, $user);
-        header("Location: /index.php");
-        exit();
-    }
+    showAddTaskFormIfNeeded($taskForm, $user);
 }
 
 // Валидация формы добавления категорий для проекта
@@ -90,14 +57,9 @@ if (isset($_GET['addProject']) || $categoryForm->isSubmitted()) {
     $modalShowProject = true;
 }
 if ($categoryForm->isSubmitted()) {
-    $categoryForm->validate();
-    if ($categoryForm->isValid()) {
-        /* Функция добавляет категорию в базу */
-        Project::addProject($categoryForm->getformData(), $user);
-        header("Location: /index.php");
-        exit();
-    }
+    showAddProjectFormIfNeeded($categoryForm, $user);
 }
+
 //если пришел параметр show_completed создаем куку
 $show_completed = false;
 if (isset($_GET['show_completed'])) {

@@ -1,8 +1,10 @@
 <?php
+
 /**
  * class AuthForm
  */
-class AuthForm extends BaseForm {
+class AuthForm extends BaseForm
+{
     public $formName = 'auth';
 
     protected $fields = ['email', 'password'];
@@ -11,6 +13,7 @@ class AuthForm extends BaseForm {
         ['email', ['email']],
         ['required', ['email', 'password']]
     ];
+
     /**
      * Проверят e-mail на корректность заполнения
      * @param array $fields Список полей для проверки
@@ -20,7 +23,7 @@ class AuthForm extends BaseForm {
     {
         $result = true;
 
-        foreach($fields as $value){
+        foreach ($fields as $value) {
             $field = $this->formData[$value];
             if (!filter_var($field, FILTER_VALIDATE_EMAIL)) {
                 $result = false;
@@ -29,11 +32,14 @@ class AuthForm extends BaseForm {
         }
         return $result;
     }
+
     /**
      * Записывает ошибку, если пароль введен неверно
      */
-    public function addBadEmailOrPasswordError() {
-        $this->errors['password'] = 'Пароль введен не верно';
+    public function addBadEmailOrPasswordError()
+    {
+        $this->errors['password'] = 'Пароль или e-mail введены не верно';
+        $this->errors['email'] = 'Пароль или e-mail введены не верно';
     }
 
 }

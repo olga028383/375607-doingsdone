@@ -20,6 +20,75 @@ function printHead($bodyClassOverlay = '')
             <div class='container container--with-sidebar'>");
 }
 
+/**
+ * Функция проверяет форму и добавляет категорию
+ * @param $taskForm объект задачи
+ * @param $user
+ */
+function showAddTaskFormIfNeeded($taskForm, $user = [])
+{
+    $taskForm->validate();
+    if ($taskForm->isValid()) {
+        $file = null;
+        $path = null;
+        if (isset($_FILES['preview'])) {
+            $file = $_FILES['preview'];
+            if (is_uploaded_file($file['tmp_name'])) {
+                move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
+            }
+            $path = $file['name'];
+        }
+        /* Функция добавляет задачу в базу */
+        Task::addTaskToDatabase($taskForm->getFormData(), $path, $user);
+        header("Location: /index.php");
+        exit();
+    }
+}
+
+/**
+ * Функция проверяет форму и добавляет категорию
+ * @param $categoryForm объект формы
+ * @param $user
+ */
+function showAddProjectFormIfNeeded($categoryForm, $user = [])
+{
+    $categoryForm->validate();
+    if ($categoryForm->isValid()) {
+        /* Функция добавляет категорию в базу */
+        Project::addProject($categoryForm->getformData(), $user);
+        header("Location: /index.php");
+        exit();
+    }
+
+}
+
+/**
+ * Функция получает список проектов и задач
+ * @param array $user принимает массив с данными авторизованного пользователя
+ * @return array
+ */
+function getTasksAndProjects($user)
+{
+    $filter = false;
+    $search = false;
+    /* Получаем  задачи и проекты после того как пользователь авторизован */
+    $projectList = Project::getProjects($user);
+    /* Получаем массив задач из базы в зависимости от запроса*/
+    if (isset($_GET['search']) && !empty(sanitizeInput($_GET['search']))) {
+        $query = trim($_GET['search']);
+        $taskList = Task::getTasksByProjectOnRequest($user, $query);
+        $search = trim($_GET['search']);
+    } else if (isset($_GET['filter'])) {
+        $filter = sanitizeInput($_GET['filter']);
+        $taskList = Task::getTasksByProjectOnRequestFilter($user, $filter);
+        $filter = sanitizeInput($_GET['filter']);
+    } else {
+        $taskList = Task::getTasksByProject($user);
+    }
+
+    return [$filter, $search, $projectList, $taskList];
+}
+
 /* * Функция печатает закрывающиеся теги   */
 
 function printEndDivLayout()
@@ -69,13 +138,12 @@ function checkForDateCorrected($str)
     if (isset($translate[$date])) {
         $date = date('Y-m-d', $translate[$date]);
     } else {
-        $date = $matches[5].'-'.$matches[4].'-'.$matches[3];
+        $date = $matches[5] . '-' . $matches[4] . '-' . $matches[3];
     }
-    $time = isset($matches[7]) ? $matches[7] : '';
+    $time = isset($matches[7]) ? $matches[7] : date('H:i:s', time());
     $result = "$date $time";
     return $result;
 }
-
 
 /**
  * Функция выводит блок с ошибкой.
