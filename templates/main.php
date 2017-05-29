@@ -102,7 +102,8 @@
                         </label>
                     </td>
                     <td class="task__file">
-                        <a class="download-link" <?= $hiddenFieldFile; ?> href="<?= $val['file']; ?>">Home.psd</a>
+                        <a class="download-link" <?= $hiddenFieldFile; ?>
+                           href="<?= $val['file']; ?>"><?= ($val['file']) ? basename($val['file']) : ''; ?></a>
                     </td>
                     <td class="task__date"><?= htmlspecialchars($val['deadline']); ?></td>
                     <td class="task__controls">

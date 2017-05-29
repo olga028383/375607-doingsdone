@@ -22,7 +22,6 @@ function printHead($bodyClassOverlay = false)
 }
 
 
-
 /* * Функция печатает закрывающиеся теги   */
 
 function printEndDivLayout()
@@ -40,12 +39,12 @@ function printEndBodyHtml()
 /**
  * Функция проверяет корректность даты заполняемой пользователем
  * @param  string $str введенная дата
- * @return int|bool
+ * @return int|null
  */
 function checkForDateCorrected($str)
 {
     $translate = [
-        'сегодня' => strtotime('24:00:00'),
+        'сегодня' => strtotime('23:59:59'),
         'завтра' => time() + 86400,
         'послезавтра' => time() + 172800,
         'понедельник' => strtotime('Monday'),
@@ -74,9 +73,16 @@ function checkForDateCorrected($str)
     } else {
         $date = $matches[5] . '-' . $matches[4] . '-' . $matches[3];
     }
-    $time = isset($matches[7]) ? $matches[7] : date('H:i:s', time());
+    //Подставляю время в зависимости от текущего времени и переданной строки
+    if (isset($matches[7])) {
+        $time = $matches[7];
+    } else if ($date == date('Y-m-d', time())) {
+        $time = "23:59:59";
+    } else {
+        $time = date('H:i:s', time());
+    }
     $result = "$date $time";
-    return $result;
+    return ($result >= date('Y-m-d H:i:s', time())) ? $result : null;
 }
 
 /**

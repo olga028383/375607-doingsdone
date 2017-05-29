@@ -22,16 +22,16 @@ function showAddTaskFormIfNeeded($user = [])
         $taskForm->validate();
         if ($taskForm->isValid()) {
             $file = null;
-            $path = null;
+            $fileName = null;
             if (isset($_FILES['preview'])) {
                 $file = $_FILES['preview'];
                 if (is_uploaded_file($file['tmp_name'])) {
                     move_uploaded_file($file['tmp_name'], __DIR__ . '/upload/' . $file['name']);
                 }
-                $path = $file['name'];
+                $fileName = $file['name'];
             }
             /* Функция добавляет задачу в базу */
-            Task::addTaskToDatabase($taskForm->getFormData(), $path, $user);
+            Task::addTaskToDatabase($taskForm->getFormData(), $fileName, $user);
             header("Location: /index.php");
             exit();
         } else {
@@ -98,7 +98,6 @@ function getTasksAndProjects($user)
     } else {
         $taskList = Task::getTasksByProject($user);
     }
-
     // Если пришел get-параметр project, то отфильтруем все таски про проекту
     if (isset($_GET['project'])) {
         $project = (int)abs(($_GET['project']));
