@@ -98,7 +98,6 @@ function getTasksAndProjects($user)
     } else {
         $taskList = Task::getTasksByProject($user);
     }
-
     // Если пришел get-параметр project, то отфильтруем все таски про проекту
     if (isset($_GET['project'])) {
         $project = (int)abs(($_GET['project']));

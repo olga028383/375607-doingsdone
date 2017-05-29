@@ -3,8 +3,8 @@
 /**
  * Class Task
  */
-class Task {
-
+class Task
+{
     /**
      * Функция получает задачу
      * @param int $id идентификатор задачи
@@ -36,7 +36,8 @@ class Task {
      */
     public static function getTasksByProject($user)
     {
-        $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ?";
+        $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file_path, file_name, complete 
+                        FROM tasks WHERE user_id = ?";
         return Database::instance()->getData($sqlGetTasks, [$user['id']]);
     }
 
@@ -62,6 +63,19 @@ class Task {
     }
 
     /**
+     * Функция выполняет sql запрос на получение данных в азвисимости от переданных параметров
+     * @param string $condition условие запроса
+     * @param array $param параметры запроса
+     * @return array массив задач, соответствующих авторизованному пользователю
+     */
+    public static function sqlOnRequestFilter($condition, $param = [])
+    {
+        $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file_path, file_name, complete 
+                        FROM tasks WHERE user_id = ? " . $condition;
+        return Database::instance()->getData($sqlGetTasks, $param);
+    }
+
+    /**
      * Функция получает задачи, id проектов, файл, id и метки для задач (выполнена или нет) по поиску
      * @param array $user даные авторизованного пользователя
      * @param string $query запрос поиска
@@ -69,27 +83,24 @@ class Task {
      */
     public static function getTasksByProjectOnRequestFilter($user, $query)
     {
-        $param = '';
-        $condition = '';
         switch ($query) {
             case 'today' :
-                $param = "AND deadline LIKE ?";
-                $time = date('Y-m-d', time());
-                $condition = "%$time%";
+                $condition = "AND deadline BETWEEN ? AND ?";
+                $time_from = date('Y-m-d H:i:s', time());
+                $time_to = date('Y-m-d H:i:s', strtotime('24:00:00'));
+                return Task::sqlOnRequestFilter($condition, [$user['id'], $time_from, $time_to]);
                 break;
             case 'tomorrow':
-                $param = "AND deadline LIKE ?";
+                $condition = "AND deadline LIKE ?";
                 $time = date('Y-m-d', strtotime("tomorrow"));
-                $condition = "%$time%";
+                return Task::sqlOnRequestFilter($condition, [$user['id'], "%$time%"]);
                 break;
             case 'overdue':
-                $param = "AND deadline < ?";
-                $time = date('Y-m-d H:i:s', strtotime('00:00:00'));
-                $condition = "$time";
+                $condition = "AND deadline < ? AND complete IS NULL";
+                $time = date('Y-m-d H:i:s', time());
+                return Task::sqlOnRequestFilter($condition, [$user['id'], $time]);
                 break;
         }
-        $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ? " . $param;
-        return Database::instance()->getData($sqlGetTasks, [$user['id'], $condition]);
     }
 
     /**
@@ -100,25 +111,28 @@ class Task {
      */
     public static function getTasksByProjectOnRequest($user, $query)
     {
-        $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file, complete FROM tasks WHERE user_id = ? AND `name` LIKE ?";
+        $sqlGetTasks = "SELECT name as task, deadline, project_id as project, id, file_path, file_name, complete 
+                        FROM tasks WHERE user_id = ? AND `name` LIKE ?";
         return Database::instance()->getData($sqlGetTasks, [$user['id'], "%$query%"]);
     }
 
     /**
      * Функция добавляет задачу в базу
      * @param  array $resultAddTask валидные и не валидные поля
-     * @param  string $pathFile путь к файлу либо null
+     * @param  string $nameFile имя файла либо null
      * @param  array $user данные авторизованного пользователя
      */
-    public static function addTaskToDatabase($resultAddTask, $pathFile, $user)
+    public static function addTaskToDatabase($resultAddTask, $nameFile, $user)
     {
-        $file = ($pathFile) ? '/upload/' . $pathFile : '';
+        $file_path = ($nameFile) ? '/upload/' . $nameFile : '';
+        $file_name = ($nameFile) ? $nameFile : '';
         $user_id = $user['id'];
         $project_id = (int)$resultAddTask['project'];
         $deadline = checkForDateCorrected($resultAddTask['deadline']);
         $name = $resultAddTask['task'];
-        $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
-        Database::instance()->setData($sqlAddTask, [$user_id, $project_id, $deadline, $name, $file]);
+        $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file_path, file_name) 
+                       VALUES ( ?, ?, NOW(), ?, ?, ?, ?)";
+        Database::instance()->setData($sqlAddTask, [$user_id, $project_id, $deadline, $name, $file_path, $file_name]);
     }
 
     /**
@@ -127,7 +141,14 @@ class Task {
      */
     public static function duplicateTaskToDatabase($task)
     {
-        $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file) VALUES ( ?, ?, NOW(), ?, ?, ?)";
-        Database::instance()->setData($sqlAddTask, [$task['user_id'], $task['project_id'], $task['deadline'], $task['name'], $task['file']]);
+        $sqlAddTask = "INSERT INTO tasks(user_id, project_id, created, deadline, name, file_path, file_name) 
+                       VALUES ( ?, ?, NOW(), ?, ?, ?, ?)";
+        Database::instance()->setData($sqlAddTask, [
+            $task['user_id'],
+            $task['project_id'],
+            $task['deadline'],
+            $task['name'],
+            $task['file_path'],
+            $task['file_name']]);
     }
 }

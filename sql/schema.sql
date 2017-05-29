@@ -13,7 +13,8 @@ CREATE TABLE `tasks` (
 `complete` DATETIME DEFAULT NULL,
 `deadline` DATETIME,
 `name` CHAR(255) NOT NULL,
-`file` CHAR(255)
+`file_path` CHAR(255),
+`file_name` CHAR(255)
 );
 CREATE TABLE `user` (
 `id` INT AUTO_INCREMENT PRIMARY KEY,
